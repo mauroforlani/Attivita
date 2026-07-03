@@ -46,6 +46,15 @@ body {
 a { color: inherit; }
 h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.01em; }
 
+.data-status-banner {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  padding: 0.6rem 1rem;
+}
+.data-status-banner.loading { background: var(--surface); color: var(--ink-soft); }
+.data-status-banner.error { background: #fee2e2; color: #991b1b; }
+
 /* --- nav --- */
 .site-nav {
   position: sticky;
@@ -146,6 +155,12 @@ h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.01em; }
   padding: 0 1.5rem;
 }
 #map {
+  height: 440px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+.map-wrap > div {
   height: 440px;
   border-radius: var(--radius);
   border: 1px solid var(--border);
@@ -307,7 +322,8 @@ details.region[open] > summary::before { content: "–"; }
   color: var(--ink-soft);
   margin: -0.2rem 0 0.7rem;
 }
-.remove-btn {
+.card-top-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+.remove-btn, .edit-btn {
   flex-shrink: 0;
   border: 1px solid var(--border);
   background: #fff;
@@ -320,6 +336,7 @@ details.region[open] > summary::before { content: "–"; }
   display: flex; align-items: center; justify-content: center;
 }
 .remove-btn:hover { background: #fee2e2; border-color: #fca5a5; color: #b91c1c; }
+.edit-btn:hover { background: var(--surface); border-color: var(--ink-soft); color: var(--ink); }
 
 .modal-backdrop {
   position: fixed; inset: 0;
@@ -398,6 +415,16 @@ details.region[open] > summary::before { content: "–"; }
   border: 1px solid var(--border);
   cursor: pointer;
 }
+.existing-photo-item { position: relative; width: 56px; height: 56px; }
+.existing-photo-item img { width: 56px; height: 56px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); }
+.existing-photo-item .x-btn {
+  position: absolute; top: -6px; right: -6px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #b91c1c; color: #fff; border: 2px solid #fff;
+  font-size: 0.62rem; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.existing-photo-item.removed { opacity: 0.35; }
 
 /* --- sezione Foto: galleria --- */
 .gallery-upload {
@@ -611,13 +638,15 @@ button.submit:hover { background: #2b2f38; }
 
 @media (max-width: 600px) {
   .row { flex-direction: column; }
-  #map { height: 320px; }
+  #map, .map-wrap > div { height: 320px; }
   .nav-links { gap: 1rem; font-size: 0.85rem; }
 }
 .view[hidden]{display:none;}
 </style>
 </head>
 <body>
+
+<div id="data-status-banner" class="data-status-banner" hidden></div>
 
 <nav class="site-nav">
   <div class="nav-inner">
@@ -698,15 +727,15 @@ button.submit:hover { background: #2b2f38; }
 
 <div id="view-add" class="view" hidden>
   <div class="form-wrap">
-    <h2>Aggiungi una voce</h2>
-    <p class="hint">Compila i campi e clicca "Salva su GitHub": la voce viene aggiunta direttamente al sito, senza bisogno di modificare file a mano.</p>
+    <h2 id="form-title">Aggiungi una voce</h2>
+    <p class="hint" id="form-hint">Compila i campi e clicca "Salva su GitHub": la voce viene aggiunta direttamente al sito, senza bisogno di modificare file a mano.</p>
 
     <div class="gh-settings">
       <button type="button" id="gh-settings-toggle" class="settings-toggle">⚙ Impostazioni GitHub</button>
       <div id="gh-settings-panel" hidden>
         <div class="field"><label for="gh-repo">Repository (utente/nome-repo)</label><input type="text" id="gh-repo" placeholder="mariorossi/sentieri-strade"></div>
         <div class="row">
-          <div class="field"><label for="gh-path">File</label><input type="text" id="gh-path" value="index.html"></div>
+          <div class="field"><label for="gh-path">File dati (JSON)</label><input type="text" id="gh-path" value="data/luoghi.json"></div>
           <div class="field"><label for="gh-branch">Branch</label><input type="text" id="gh-branch" value="main"></div>
         </div>
         <div class="field"><label for="gh-token">Token di accesso personale</label><input type="password" id="gh-token" placeholder="ghp_…"></div>
@@ -764,16 +793,20 @@ button.submit:hover { background: #2b2f38; }
 
       <div class="field">
         <label for="f-foto">Foto (facoltative, anche più di una)</label>
+        <div id="existing-photos" class="card-photos" style="display:none; margin-bottom:0.6rem;"></div>
         <input type="file" id="f-foto" accept="image/*" multiple>
         <p class="desc">Le foto vengono caricate nel repository insieme alla voce.</p>
       </div>
 
       <div class="field"><label for="f-link">Link (mappa, sito, pagina della traccia…)</label><input type="url" id="f-link" placeholder="https://…"></div>
-      <button type="submit" class="submit" id="submit-btn">Salva su GitHub ↑</button>
+      <div class="modal-actions">
+        <button type="submit" class="submit" id="submit-btn">Salva su GitHub ↑</button>
+        <button type="button" class="btn-close" id="cancel-edit-btn" style="display:none;">Annulla modifica</button>
+      </div>
     </form>
 
     <div id="generated-wrap" style="display:none; margin-top:2rem;">
-      <p class="desc">Non sono riuscito a salvare automaticamente. Copia questo blocco e incollalo dentro l'elenco <code class="inline">ITEMS</code> nel file <code class="inline">index.html</code> su GitHub, prima della parentesi quadra finale <code class="inline">];</code>.</p>
+      <p class="desc">Non sono riuscito a salvare automaticamente. Copia questo blocco e incollalo dentro l'elenco del file <code class="inline">data/luoghi.json</code> su GitHub, prima della parentesi quadra finale <code class="inline">]</code>.</p>
       <textarea id="generated-code" readonly style="width:100%; min-height:150px; font-family:var(--mono); font-size:0.82rem; padding:0.8rem; border:1px solid var(--border); border-radius:8px; background:var(--surface);"></textarea>
       <button type="button" class="submit" id="copy-btn" style="margin-top:0.8rem; background:var(--ink-soft);">Copia negli appunti</button>
     </div>
@@ -805,7 +838,7 @@ button.submit:hover { background: #2b2f38; }
       <button type="button" class="btn-close" id="modal-close-btn">Annulla</button>
     </div>
     <div id="remove-fallback" style="display:none; margin-top:1.2rem;">
-      <p class="desc">Non sono riuscito a eliminarla automaticamente (controlla le impostazioni GitHub nella pagina "Aggiungi voce"). Puoi farlo a mano: apri <code class="inline">index.html</code> su GitHub, premi Ctrl+F, cerca questo testo e cancella l'intero blocco <code class="inline">{ … }</code> che lo contiene, comprese le graffe e la virgola:</p>
+      <p class="desc">Non sono riuscito a eliminarla automaticamente (controlla le impostazioni GitHub nella pagina "Aggiungi voce"). Puoi farlo a mano: apri <code class="inline">data/luoghi.json</code> su GitHub, premi Ctrl+F, cerca questo testo e cancella l'intero blocco <code class="inline">{ … }</code> che lo contiene, comprese le graffe e la virgola:</p>
       <textarea id="remove-search" readonly style="width:100%; min-height:60px; font-family:var(--mono); font-size:0.82rem; padding:0.7rem; border:1px solid var(--border); border-radius:8px; background:var(--surface);"></textarea>
       <div class="modal-actions">
         <button type="button" class="btn-copy" id="modal-copy-btn">Copia il testo da cercare</button>
@@ -846,881 +879,14 @@ button.submit:hover { background: #2b2f38; }
    - traccia: solo per "escursione", array di coppie [lat, lng] che disegna
      il percorso sulla mappa (facoltativo). Generato automaticamente se
      carichi un file GPX dal modulo "Aggiungi voce".
+
+   I DATI VERI E PROPRI NON SONO PIÙ QUI: vivono nel file separato
+   data/luoghi.json (un semplice array JSON), caricato all'avvio della
+   pagina. Così puoi aggiornare questo index.html senza mai perdere le
+   voci che hai aggiunto — restano nell'altro file, che il sito non
+   sovrascrive mai per intero (solo aggiunge/modifica/rimuove singole voci).
    ===================================================================== */
-const ITEMS = [
-  {
-    "id": "anello-lago-sorapis",
-    "tipo": "escursione",
-    "nome": "Anello del Lago di Sorapis",
-    "regione": "Veneto",
-    "comune": "Cortina d'Ampezzo",
-    "descrizione": "Sentiero panoramico fino al celebre lago dalle acque turchesi, ai piedi delle Dolomiti. Tratti attrezzati nella parte finale.",
-    "lat": 46.5139,
-    "lng": 12.2486,
-    "difficolta": "Media",
-    "durata": "4h, 11 km",
-    "link": "https://www.openstreetmap.org/",
-    "dislivello": "850 m",
-    "rifugi": "Rifugio Vandelli",
-    "traccia": [
-      [46.5389, 12.2107],
-      [46.5352, 12.2168],
-      [46.5301, 12.2229],
-      [46.5264, 12.2288],
-      [46.5223, 12.2341],
-      [46.5187, 12.2398],
-      [46.5165, 12.2440],
-      [46.5139, 12.2486]
-    ]
-  },
-  {
-    "id": "passo-stelvio",
-    "tipo": "moto",
-    "nome": "Passo dello Stelvio",
-    "regione": "Lombardia",
-    "comune": "Bormio",
-    "descrizione": "I tornanti più celebri delle Alpi italiane, 48 curve numerate sul versante di Bormio. Asfalto buono, panorama spettacolare.",
-    "lat": 46.5283,
-    "lng": 10.4527,
-    "difficolta": "Difficile",
-    "durata": "1h, 21 km",
-    "link": "https://www.openstreetmap.org/"
-  },
-  {
-    "id": "castel-del-monte",
-    "tipo": "poi",
-    "nome": "Castel del Monte",
-    "regione": "Puglia",
-    "comune": "Andria",
-    "descrizione": "Fortezza ottagonale di Federico II, patrimonio UNESCO. Tappa ideale durante un giro in moto nelle Murge.",
-    "lat": 41.0844,
-    "lng": 16.2697,
-    "difficolta": "—",
-    "durata": "1h",
-    "link": "https://www.openstreetmap.org/"
-  },
-  {
-    "id": "monte-aga-mr4m0a68",
-    "tipo": "escursione",
-    "nome": "Monte Aga",
-    "regione": "Lombardia",
-    "comune": "Carona",
-    "descrizione": "Salita al Monte Aga",
-    "lat": 46.024901,
-    "lng": 9.795732,
-    "difficolta": "Difficile",
-    "durata": "20",
-    "link": "",
-    "dislivello": "1585",
-    "rifugi": "Rifugio Longo",
-    "traccia": [
-      [
-        46.024901,
-        9.795732
-      ],
-      [
-        46.024853,
-        9.797081
-      ],
-      [
-        46.024817,
-        9.797341
-      ],
-      [
-        46.025128,
-        9.799409
-      ],
-      [
-        46.025547,
-        9.80068
-      ],
-      [
-        46.025774,
-        9.802764
-      ],
-      [
-        46.025992,
-        9.803676
-      ],
-      [
-        46.025921,
-        9.804948
-      ],
-      [
-        46.026479,
-        9.806224
-      ],
-      [
-        46.026376,
-        9.807585
-      ],
-      [
-        46.0259,
-        9.80918
-      ],
-      [
-        46.02534,
-        9.811019
-      ],
-      [
-        46.025701,
-        9.812972
-      ],
-      [
-        46.025609,
-        9.814426
-      ],
-      [
-        46.025448,
-        9.815163
-      ],
-      [
-        46.025476,
-        9.815311
-      ],
-      [
-        46.025696,
-        9.815198
-      ],
-      [
-        46.025447,
-        9.816095
-      ],
-      [
-        46.026191,
-        9.815006
-      ],
-      [
-        46.026501,
-        9.814339
-      ],
-      [
-        46.027125,
-        9.814313
-      ],
-      [
-        46.027071,
-        9.81459
-      ],
-      [
-        46.027032,
-        9.815945
-      ],
-      [
-        46.026831,
-        9.816116
-      ],
-      [
-        46.027346,
-        9.816038
-      ],
-      [
-        46.027183,
-        9.816538
-      ],
-      [
-        46.02824,
-        9.815202
-      ],
-      [
-        46.028128,
-        9.816148
-      ],
-      [
-        46.027727,
-        9.817439
-      ],
-      [
-        46.027893,
-        9.817852
-      ],
-      [
-        46.028151,
-        9.818014
-      ],
-      [
-        46.028967,
-        9.816807
-      ],
-      [
-        46.029375,
-        9.816964
-      ],
-      [
-        46.028628,
-        9.818573
-      ],
-      [
-        46.02859,
-        9.821054
-      ],
-      [
-        46.02859,
-        9.823246
-      ],
-      [
-        46.028896,
-        9.824941
-      ],
-      [
-        46.028867,
-        9.826346
-      ],
-      [
-        46.029062,
-        9.828186
-      ],
-      [
-        46.029554,
-        9.831036
-      ],
-      [
-        46.029502,
-        9.83249
-      ],
-      [
-        46.029373,
-        9.834715
-      ],
-      [
-        46.029648,
-        9.835637
-      ],
-      [
-        46.029898,
-        9.835625
-      ],
-      [
-        46.030746,
-        9.836658
-      ],
-      [
-        46.031977,
-        9.838017
-      ],
-      [
-        46.032722,
-        9.839422
-      ],
-      [
-        46.032841,
-        9.840733
-      ],
-      [
-        46.033506,
-        9.843182
-      ],
-      [
-        46.034129,
-        9.844623
-      ],
-      [
-        46.034485,
-        9.845373
-      ],
-      [
-        46.034761,
-        9.846235
-      ],
-      [
-        46.034893,
-        9.847833
-      ],
-      [
-        46.035384,
-        9.850403
-      ],
-      [
-        46.036575,
-        9.852629
-      ],
-      [
-        46.037437,
-        9.853653
-      ],
-      [
-        46.038498,
-        9.854939
-      ],
-      [
-        46.038938,
-        9.855522
-      ],
-      [
-        46.039758,
-        9.856994
-      ],
-      [
-        46.040081,
-        9.858589
-      ],
-      [
-        46.040593,
-        9.860769
-      ],
-      [
-        46.039965,
-        9.861886
-      ],
-      [
-        46.039912,
-        9.862884
-      ],
-      [
-        46.040139,
-        9.863722
-      ],
-      [
-        46.040283,
-        9.864188
-      ],
-      [
-        46.040565,
-        9.864796
-      ],
-      [
-        46.040673,
-        9.864925
-      ],
-      [
-        46.040719,
-        9.865191
-      ],
-      [
-        46.040902,
-        9.865487
-      ],
-      [
-        46.04115,
-        9.866211
-      ],
-      [
-        46.041241,
-        9.86622
-      ],
-      [
-        46.041464,
-        9.866033
-      ],
-      [
-        46.04142,
-        9.866278
-      ],
-      [
-        46.041414,
-        9.866396
-      ],
-      [
-        46.041467,
-        9.86641
-      ],
-      [
-        46.04149,
-        9.86653
-      ],
-      [
-        46.041548,
-        9.866549
-      ],
-      [
-        46.041564,
-        9.866639
-      ],
-      [
-        46.041607,
-        9.866691
-      ],
-      [
-        46.041707,
-        9.866854
-      ],
-      [
-        46.041824,
-        9.867049
-      ],
-      [
-        46.041926,
-        9.867164
-      ],
-      [
-        46.042032,
-        9.867113
-      ],
-      [
-        46.042127,
-        9.867027
-      ],
-      [
-        46.04245,
-        9.866165
-      ],
-      [
-        46.042801,
-        9.865059
-      ],
-      [
-        46.043059,
-        9.864939
-      ],
-      [
-        46.04284,
-        9.863065
-      ],
-      [
-        46.043781,
-        9.864552
-      ],
-      [
-        46.044623,
-        9.865175
-      ],
-      [
-        46.045422,
-        9.866029
-      ],
-      [
-        46.046498,
-        9.867071
-      ],
-      [
-        46.047303,
-        9.868232
-      ],
-      [
-        46.048351,
-        9.869916
-      ],
-      [
-        46.048665,
-        9.871295
-      ],
-      [
-        46.049005,
-        9.872668
-      ],
-      [
-        46.049258,
-        9.874069
-      ],
-      [
-        46.04967,
-        9.874855
-      ],
-      [
-        46.049937,
-        9.876033
-      ],
-      [
-        46.050276,
-        9.876043
-      ],
-      [
-        46.050306,
-        9.875996
-      ],
-      [
-        46.049937,
-        9.876033
-      ],
-      [
-        46.049418,
-        9.877257
-      ],
-      [
-        46.048222,
-        9.878674
-      ],
-      [
-        46.047521,
-        9.8794
-      ],
-      [
-        46.047051,
-        9.879795
-      ],
-      [
-        46.046737,
-        9.880263
-      ],
-      [
-        46.047051,
-        9.879795
-      ],
-      [
-        46.047625,
-        9.879404
-      ],
-      [
-        46.048374,
-        9.878502
-      ],
-      [
-        46.049468,
-        9.877196
-      ],
-      [
-        46.049871,
-        9.87479
-      ],
-      [
-        46.049441,
-        9.874348
-      ],
-      [
-        46.048998,
-        9.873457
-      ],
-      [
-        46.048883,
-        9.872097
-      ],
-      [
-        46.048526,
-        9.87014
-      ],
-      [
-        46.047707,
-        9.86881
-      ],
-      [
-        46.046699,
-        9.867336
-      ],
-      [
-        46.045608,
-        9.866326
-      ],
-      [
-        46.044932,
-        9.865556
-      ],
-      [
-        46.043874,
-        9.864143
-      ],
-      [
-        46.043287,
-        9.863465
-      ],
-      [
-        46.043118,
-        9.864863
-      ],
-      [
-        46.042801,
-        9.865059
-      ],
-      [
-        46.04245,
-        9.866165
-      ],
-      [
-        46.042056,
-        9.867122
-      ],
-      [
-        46.041971,
-        9.867114
-      ],
-      [
-        46.041906,
-        9.867122
-      ],
-      [
-        46.041743,
-        9.866933
-      ],
-      [
-        46.041598,
-        9.866748
-      ],
-      [
-        46.041581,
-        9.866595
-      ],
-      [
-        46.041532,
-        9.866619
-      ],
-      [
-        46.041502,
-        9.866519
-      ],
-      [
-        46.041427,
-        9.866456
-      ],
-      [
-        46.041457,
-        9.866373
-      ],
-      [
-        46.041358,
-        9.866349
-      ],
-      [
-        46.04148,
-        9.866051
-      ],
-      [
-        46.04125,
-        9.866216
-      ],
-      [
-        46.04115,
-        9.866211
-      ],
-      [
-        46.040902,
-        9.865487
-      ],
-      [
-        46.040719,
-        9.865191
-      ],
-      [
-        46.040673,
-        9.864925
-      ],
-      [
-        46.040565,
-        9.864796
-      ],
-      [
-        46.040283,
-        9.864188
-      ],
-      [
-        46.040111,
-        9.863584
-      ],
-      [
-        46.039811,
-        9.862302
-      ],
-      [
-        46.040403,
-        9.8614
-      ],
-      [
-        46.040374,
-        9.859084
-      ],
-      [
-        46.039745,
-        9.857301
-      ],
-      [
-        46.039358,
-        9.856223
-      ],
-      [
-        46.038663,
-        9.854908
-      ],
-      [
-        46.037968,
-        9.854303
-      ],
-      [
-        46.036575,
-        9.852629
-      ],
-      [
-        46.035384,
-        9.850403
-      ],
-      [
-        46.034893,
-        9.847833
-      ],
-      [
-        46.034761,
-        9.846235
-      ],
-      [
-        46.034485,
-        9.845373
-      ],
-      [
-        46.034181,
-        9.844696
-      ],
-      [
-        46.033506,
-        9.843182
-      ],
-      [
-        46.032841,
-        9.840733
-      ],
-      [
-        46.032722,
-        9.839422
-      ],
-      [
-        46.031977,
-        9.838017
-      ],
-      [
-        46.030746,
-        9.836658
-      ],
-      [
-        46.029898,
-        9.835625
-      ],
-      [
-        46.029505,
-        9.835109
-      ],
-      [
-        46.029502,
-        9.83249
-      ],
-      [
-        46.029554,
-        9.831036
-      ],
-      [
-        46.029062,
-        9.828186
-      ],
-      [
-        46.028867,
-        9.826346
-      ],
-      [
-        46.028896,
-        9.824941
-      ],
-      [
-        46.028554,
-        9.823363
-      ],
-      [
-        46.028612,
-        9.821423
-      ],
-      [
-        46.028628,
-        9.818573
-      ],
-      [
-        46.029375,
-        9.816964
-      ],
-      [
-        46.028687,
-        9.817236
-      ],
-      [
-        46.028209,
-        9.817568
-      ],
-      [
-        46.027693,
-        9.818284
-      ],
-      [
-        46.02772,
-        9.817228
-      ],
-      [
-        46.028179,
-        9.815827
-      ],
-      [
-        46.027865,
-        9.815767
-      ],
-      [
-        46.027093,
-        9.816585
-      ],
-      [
-        46.02726,
-        9.816099
-      ],
-      [
-        46.02692,
-        9.816129
-      ],
-      [
-        46.027118,
-        9.815122
-      ],
-      [
-        46.027005,
-        9.814308
-      ],
-      [
-        46.02645,
-        9.814462
-      ],
-      [
-        46.02619,
-        9.814838
-      ],
-      [
-        46.025415,
-        9.815938
-      ],
-      [
-        46.025508,
-        9.815277
-      ],
-      [
-        46.025457,
-        9.815068
-      ],
-      [
-        46.025829,
-        9.813659
-      ],
-      [
-        46.025429,
-        9.811898
-      ],
-      [
-        46.025575,
-        9.810123
-      ],
-      [
-        46.026345,
-        9.808279
-      ],
-      [
-        46.026479,
-        9.806224
-      ],
-      [
-        46.025921,
-        9.804891
-      ],
-      [
-        46.025933,
-        9.803088
-      ],
-      [
-        46.025592,
-        9.800947
-      ],
-      [
-        46.025007,
-        9.799031
-      ],
-      [
-        46.024853,
-        9.797102
-      ],
-      [
-        46.024901,
-        9.795732
-      ]
-    ]
-  }
-];
+let ITEMS = [];
 /* ===================================================================== */
 
 const TIPO_LABEL = { escursione: "Escursione", moto: "Motogiro", poi: "Punto di interesse" };
@@ -1781,7 +947,10 @@ function renderCard(it){
     : "";
   card.innerHTML=`<div class="card-top">
       <h3>${escapeHtml(it.nome)}</h3>
-      <button type="button" class="remove-btn" title="Rimuovi voce" data-id="${escapeHtml(it.id||"")}">✕</button>
+      <div class="card-top-actions">
+        <button type="button" class="edit-btn" title="Modifica voce" data-id="${escapeHtml(it.id||"")}">✎</button>
+        <button type="button" class="remove-btn" title="Rimuovi voce" data-id="${escapeHtml(it.id||"")}">✕</button>
+      </div>
     </div>
     <div class="luogo">${escapeHtml(it.comune||"")}${it.comune?" · ":""}${escapeHtml(it.regione)}</div>
     <p>${escapeHtml(it.descrizione||"")}</p>
@@ -1794,6 +963,7 @@ function renderCard(it){
         ${it.link?`<a href="${it.link}" target="_blank" rel="noopener">Apri ↗</a>`:""}
       </span>
     </div>`;
+  card.querySelector(".edit-btn").addEventListener("click", (e) => { e.stopPropagation(); openEditForm(it); });
   card.querySelector(".remove-btn").addEventListener("click", (e) => { e.stopPropagation(); openRemoveModal(it); });
   if(it.traccia && it.traccia.length > 1){
     card.querySelector(".gpx-download-btn").addEventListener("click", (e) => { e.stopPropagation(); downloadGpx(it); });
@@ -1805,7 +975,7 @@ function renderCard(it){
   }
   card.style.cursor = "pointer";
   card.addEventListener("click", (e)=>{
-    if(e.target.closest(".remove-btn, .gpx-download-btn, .card-photos img, .stats a")) return;
+    if(e.target.closest(".remove-btn, .edit-btn, .gpx-download-btn, .card-photos img, .stats a")) return;
     openDetailModal(it);
   });
   return card;
@@ -2053,6 +1223,14 @@ function applyLocalAdd(entry){
   refreshAllViews();
 }
 
+// chiamata dopo aver modificato con successo una voce esistente su GitHub
+function applyLocalReplace(entry){
+  const idx = ITEMS.findIndex(it => it.id === entry.id);
+  if(idx !== -1) ITEMS[idx] = entry;
+  else ITEMS.push(entry);
+  refreshAllViews();
+}
+
 // chiamata dopo aver eliminato con successo una voce su GitHub
 function applyLocalRemove(id){
   const idx = ITEMS.findIndex(it => it.id === id);
@@ -2082,12 +1260,14 @@ function navigate(viewName){
   if(["escursioni","motogiri","poi"].includes(viewName)){
     const tipo = {escursioni:"escursione", motogiri:"moto", poi:"poi"}[viewName];
     const st = sectionState[tipo];
+    st.items = ITEMS.filter(it => it.tipo === tipo);
     if(!st.mapInit){
       st.map = createItalyMap(`map-${tipo}`);
       st.layer = addMarkers(st.map, st.items);
       st.mapInit = true;
       st.render();
     } else {
+      st.render();
       setTimeout(()=>st.map.invalidateSize(), 50);
     }
   }
@@ -2098,7 +1278,10 @@ function navigate(viewName){
   window.scrollTo(0,0);
 }
 document.querySelectorAll("[data-view]").forEach(el=>{
-  el.addEventListener("click", ()=> navigate(el.dataset.view));
+  el.addEventListener("click", ()=>{
+    if(el.dataset.view === "add" && editingId !== null) resetFormToCreateMode();
+    navigate(el.dataset.view);
+  });
 });
 
 // --- form "Aggiungi voce": genera il blocco JS da incollare in ITEMS ---
@@ -2192,7 +1375,7 @@ function ghFillSettingsForm(){
   const cfg = ghLoadConfig();
   if(!cfg) return;
   document.getElementById("gh-repo").value = cfg.repo || "";
-  document.getElementById("gh-path").value = cfg.path || "index.html";
+  document.getElementById("gh-path").value = cfg.path || "data/luoghi.json";
   document.getElementById("gh-branch").value = cfg.branch || "main";
   document.getElementById("gh-token").value = cfg.token || "";
 }
@@ -2206,7 +1389,7 @@ document.getElementById("gh-settings-toggle").addEventListener("click", ()=>{
 document.getElementById("gh-settings-save").addEventListener("click", ()=>{
   const cfg = {
     repo: document.getElementById("gh-repo").value.trim(),
-    path: document.getElementById("gh-path").value.trim() || "index.html",
+    path: document.getElementById("gh-path").value.trim() || "data/luoghi.json",
     branch: document.getElementById("gh-branch").value.trim() || "main",
     token: document.getElementById("gh-token").value.trim()
   };
@@ -2257,75 +1440,45 @@ async function ghPutFile(cfg, newContent, sha, message){
   return await res.json();
 }
 
-// inserisce un nuovo oggetto voce dentro l'elenco "const ITEMS = [ ... ];"
-function insertItemIntoSource(sourceText, entryObj){
-  const startMarker = "const ITEMS = [";
-  const startIdx = sourceText.indexOf(startMarker);
-  if(startIdx === -1) throw new Error('Non trovo "const ITEMS = [" nel file.');
-  const endIdx = sourceText.indexOf("];", startIdx);
-  if(endIdx === -1) throw new Error("Non trovo la fine dell'elenco ITEMS.");
-  const before = sourceText.slice(0, endIdx).replace(/\s+$/, "");
-  const after = sourceText.slice(endIdx);
-  const needsComma = before.endsWith("}");
-  const json = JSON.stringify(entryObj, null, 2).replace(/\n/g, "\n  ");
-  const insertion = (needsComma ? ",\n  " : "\n  ") + json + "\n";
-  return before + insertion + after;
-}
-
-// trova la fine (indice successivo) dell'oggetto { ... } che inizia a braceStartIdx,
-// contando correttamente le graffe anche se compaiono dentro stringhe di testo
-function findObjectEnd(sourceText, braceStartIdx){
-  let depth = 0, inString = false, escape = false;
-  for(let i = braceStartIdx; i < sourceText.length; i++){
-    const ch = sourceText[i];
-    if(inString){
-      if(escape) escape = false;
-      else if(ch === "\\") escape = true;
-      else if(ch === '"') inString = false;
-      continue;
-    }
-    if(ch === '"'){ inString = true; continue; }
-    if(ch === "{") depth++;
-    else if(ch === "}"){ depth--; if(depth === 0) return i + 1; }
-  }
-  throw new Error("Blocco della voce non chiuso correttamente nel file.");
-}
-
-// rimuove l'oggetto voce con un certo id dall'elenco ITEMS
-function removeItemFromSource(sourceText, id){
-  const idMarker = `"id": "${id}"`;
-  const idIdx = sourceText.indexOf(idMarker);
-  if(idIdx === -1) throw new Error("Voce non trovata nel file (forse già rimossa).");
-  let start = sourceText.lastIndexOf("{", idIdx);
-  let end = findObjectEnd(sourceText, start);
-  const after = sourceText.slice(end);
-  const afterComma = after.match(/^\s*,/);
-  if(afterComma){
-    end += afterComma[0].length;
-  } else {
-    const before = sourceText.slice(0, start);
-    const beforeComma = before.match(/,\s*$/);
-    if(beforeComma) start -= beforeComma[0].length;
-  }
-  return sourceText.slice(0, start) + sourceText.slice(end);
-}
-
-// aggiunge una o più URL foto al campo "foto" di una voce esistente, individuata per id
-function addPhotosToItemInSource(sourceText, id, photoUrls){
-  const idMarker = `"id": "${id}"`;
-  const idIdx = sourceText.indexOf(idMarker);
-  if(idIdx === -1) throw new Error("Voce non trovata nel file.");
-  const start = sourceText.lastIndexOf("{", idIdx);
-  const end = findObjectEnd(sourceText, start);
-  let obj;
+// legge l'array JSON del file dati, ci applica una funzione di modifica, e restituisce il nuovo testo da salvare
+function applyToDataArray(sourceText, mutateFn){
+  let arr;
   try {
-    obj = JSON.parse(sourceText.slice(start, end));
+    arr = JSON.parse(sourceText);
   } catch(e){
-    throw new Error("Non riesco a leggere questa voce dal file.");
+    throw new Error("Il file dati non è un JSON valido.");
   }
-  obj.foto = Array.isArray(obj.foto) ? obj.foto.concat(photoUrls) : photoUrls.slice();
-  const json = JSON.stringify(obj, null, 2).replace(/\n/g, "\n  ");
-  return sourceText.slice(0, start) + json + sourceText.slice(end);
+  if(!Array.isArray(arr)) throw new Error("Il file dati non contiene un elenco.");
+  mutateFn(arr);
+  return JSON.stringify(arr, null, 2) + "\n";
+}
+
+function insertItemIntoSource(sourceText, entryObj){
+  return applyToDataArray(sourceText, arr => arr.push(entryObj));
+}
+
+function replaceItemInSource(sourceText, id, newObj){
+  return applyToDataArray(sourceText, arr => {
+    const idx = arr.findIndex(it => it.id === id);
+    if(idx === -1) throw new Error("Voce non trovata nel file dati (forse è stata rimossa nel frattempo).");
+    arr[idx] = newObj;
+  });
+}
+
+function removeItemFromSource(sourceText, id){
+  return applyToDataArray(sourceText, arr => {
+    const idx = arr.findIndex(it => it.id === id);
+    if(idx === -1) throw new Error("Voce non trovata nel file dati (forse già rimossa).");
+    arr.splice(idx, 1);
+  });
+}
+
+function addPhotosToItemInSource(sourceText, id, photoUrls){
+  return applyToDataArray(sourceText, arr => {
+    const item = arr.find(it => it.id === id);
+    if(!item) throw new Error("Voce non trovata nel file dati.");
+    item.foto = Array.isArray(item.foto) ? item.foto.concat(photoUrls) : photoUrls.slice();
+  });
 }
 
 // comprime/ridimensiona un'immagine lato browser prima di caricarla (per stare sotto ai limiti dell'API)
@@ -2393,6 +1546,93 @@ async function uploadPhotos(cfg, files, idPrefix, onProgress){
 let parsedTraccia = null;
 let gpxPreviewMap = null;
 let gpxPreviewLayer = null;
+
+// --- modalità modifica di una voce esistente ---
+let editingId = null;
+let editingOriginalItem = null;
+let editingRemovedPhotos = new Set();
+
+function resetFormToCreateMode(){
+  editingId = null;
+  editingOriginalItem = null;
+  editingRemovedPhotos = new Set();
+  document.getElementById("form-title").textContent = "Aggiungi una voce";
+  document.getElementById("form-hint").textContent = 'Compila i campi e clicca "Salva su GitHub": la voce viene aggiunta direttamente al sito, senza bisogno di modificare file a mano.';
+  document.getElementById("submit-btn").textContent = "Salva su GitHub ↑";
+  document.getElementById("cancel-edit-btn").style.display = "none";
+  document.getElementById("existing-photos").style.display = "none";
+  document.getElementById("existing-photos").innerHTML = "";
+  document.getElementById("add-form").reset();
+  document.getElementById("escursione-fields").hidden = true;
+  document.getElementById("gpx-field").hidden = true;
+  document.getElementById("generated-wrap").style.display = "none";
+  parsedTraccia = null;
+  document.getElementById("gpx-preview-wrap").style.display = "none";
+  resetPickedLocation();
+}
+
+function openEditForm(it){
+  editingId = it.id;
+  editingOriginalItem = it;
+  editingRemovedPhotos = new Set();
+  parsedTraccia = null;
+
+  navigate("add");
+
+  document.getElementById("form-title").textContent = "Modifica voce";
+  document.getElementById("form-hint").textContent = `Stai modificando "${it.nome}". Clicca "Salva modifiche" per aggiornarla su GitHub.`;
+  document.getElementById("submit-btn").textContent = "Salva modifiche ↑";
+  document.getElementById("cancel-edit-btn").style.display = "inline-block";
+
+  document.getElementById("f-tipo").value = it.tipo;
+  document.getElementById("f-tipo").dispatchEvent(new Event("change"));
+  document.getElementById("f-nome").value = it.nome || "";
+  document.getElementById("f-comune").value = it.comune || "";
+  document.getElementById("f-regione").value = it.regione || "";
+  document.getElementById("f-descrizione").value = it.descrizione || "";
+  document.getElementById("f-difficolta").value = it.difficolta || "—";
+  document.getElementById("f-durata").value = it.durata || "";
+  document.getElementById("f-link").value = it.link || "";
+  document.getElementById("f-dislivello").value = it.dislivello || "";
+  document.getElementById("f-rifugi").value = it.rifugi || "";
+
+  if(typeof it.lat === "number" && typeof it.lng === "number"){
+    setPickedLocation(it.lat, it.lng, "voce esistente");
+  }
+
+  const existingWrap = document.getElementById("existing-photos");
+  existingWrap.innerHTML = "";
+  if(it.foto && it.foto.length){
+    existingWrap.style.display = "flex";
+    it.foto.forEach(url=>{
+      const cell = document.createElement("div");
+      cell.className = "existing-photo-item";
+      cell.innerHTML = `<img src="${escapeAttr(url)}" alt=""><button type="button" class="x-btn" title="Rimuovi questa foto">✕</button>`;
+      cell.querySelector(".x-btn").addEventListener("click", ()=>{
+        if(editingRemovedPhotos.has(url)){
+          editingRemovedPhotos.delete(url);
+          cell.classList.remove("removed");
+        } else {
+          editingRemovedPhotos.add(url);
+          cell.classList.add("removed");
+        }
+      });
+      existingWrap.appendChild(cell);
+    });
+  } else {
+    existingWrap.style.display = "none";
+  }
+
+  if(it.traccia && it.traccia.length > 1){
+    showTrackPreview(it.traccia, "Traccia attuale — carica un nuovo file GPX qui sopra solo se vuoi sostituirla.");
+  } else {
+    document.getElementById("gpx-preview-wrap").style.display = "none";
+  }
+
+  window.scrollTo(0,0);
+}
+
+document.getElementById("cancel-edit-btn").addEventListener("click", resetFormToCreateMode);
 
 document.getElementById("f-tipo").addEventListener("change", (e)=>{
   const isEscursione = e.target.value === "escursione";
@@ -2465,22 +1705,9 @@ document.getElementById("f-gpx").addEventListener("change", (e)=>{
       // precompila posizione di partenza dal file GPX (sovrascrive quella del comune)
       setPickedLocation(coords[0][0], coords[0][1], "dal file GPX");
 
-      // anteprima
-      const wrap = document.getElementById("gpx-preview-wrap");
-      wrap.style.display = "block";
-      if(!gpxPreviewMap){
-        gpxPreviewMap = L.map("gpx-preview-map", { scrollWheelZoom: false });
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap", maxZoom: 18 }).addTo(gpxPreviewMap);
-      } else if(gpxPreviewLayer){
-        gpxPreviewMap.removeLayer(gpxPreviewLayer);
-      }
-      gpxPreviewLayer = L.polyline(parsedTraccia, { color: "#15803d", weight: 4 }).addTo(gpxPreviewMap);
-      gpxPreviewMap.fitBounds(gpxPreviewLayer.getBounds(), { padding: [16,16] });
-      setTimeout(()=> gpxPreviewMap.invalidateSize(), 50);
-
-      document.getElementById("gpx-preview-info").textContent =
-        `${(distanza/1000).toFixed(1)} km · ${trkpts.length} punti originali` +
+      const info = `${(distanza/1000).toFixed(1)} km · ${trkpts.length} punti originali` +
         (hasEle ? ` · dislivello positivo stimato ${Math.round(dislivelloPos)} m` : "");
+      showTrackPreview(parsedTraccia, info);
 
     } catch(err){
       alert("Non sono riuscito a leggere questo file GPX: " + err.message);
@@ -2490,6 +1717,22 @@ document.getElementById("f-gpx").addEventListener("change", (e)=>{
   };
   reader.readAsText(file);
 });
+
+// mostra una traccia (nuova o già esistente) nella mappa di anteprima del form
+function showTrackPreview(coords, infoText){
+  const wrap = document.getElementById("gpx-preview-wrap");
+  wrap.style.display = "block";
+  if(!gpxPreviewMap){
+    gpxPreviewMap = L.map("gpx-preview-map", { scrollWheelZoom: false });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap", maxZoom: 18 }).addTo(gpxPreviewMap);
+  } else if(gpxPreviewLayer){
+    gpxPreviewMap.removeLayer(gpxPreviewLayer);
+  }
+  gpxPreviewLayer = L.polyline(coords, { color: "#15803d", weight: 4 }).addTo(gpxPreviewMap);
+  gpxPreviewMap.fitBounds(gpxPreviewLayer.getBounds(), { padding: [16,16] });
+  setTimeout(()=> gpxPreviewMap.invalidateSize(), 50);
+  document.getElementById("gpx-preview-info").textContent = infoText || "";
+}
 
 document.getElementById("add-form").addEventListener("submit", async e=>{
   e.preventDefault();
@@ -2501,18 +1744,26 @@ document.getElementById("add-form").addEventListener("submit", async e=>{
   if(!cfg || !cfg.repo || !cfg.token){
     document.getElementById("gh-settings-panel").hidden = false;
     document.getElementById("gh-settings-panel").scrollIntoView({ behavior: "smooth", block: "start" });
-    alert("Configura prima repository e token GitHub qui sopra (una volta sola), poi premi di nuovo \"Salva su GitHub\".");
+    alert("Configura prima repository e token GitHub qui sopra (una volta sola), poi premi di nuovo il pulsante di salvataggio.");
     return;
   }
 
-  const slug = document.getElementById("f-nome").value
-    .toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+  const isEditing = editingId !== null;
   const tipo = document.getElementById("f-tipo").value;
+  let entryId;
+  if(isEditing){
+    entryId = editingId;
+  } else {
+    const slug = document.getElementById("f-nome").value
+      .toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+    entryId = `${slug}-${Date.now().toString(36)}`;
+  }
+
   const entry = {
-    id: `${slug}-${Date.now().toString(36)}`,
+    id: entryId,
     tipo: tipo,
     nome: document.getElementById("f-nome").value,
     regione: document.getElementById("f-regione").value,
@@ -2529,7 +1780,17 @@ document.getElementById("add-form").addEventListener("submit", async e=>{
     const rifugi = document.getElementById("f-rifugi").value.trim();
     if(dislivello) entry.dislivello = dislivello;
     if(rifugi) entry.rifugi = rifugi;
-    if(parsedTraccia) entry.traccia = parsedTraccia;
+    if(parsedTraccia){
+      entry.traccia = parsedTraccia; // nuova traccia caricata: sostituisce quella precedente
+    } else if(isEditing && editingOriginalItem && editingOriginalItem.traccia){
+      entry.traccia = editingOriginalItem.traccia; // nessuna nuova traccia: mantiene quella esistente
+    }
+  }
+
+  // foto esistenti (in modifica) meno quelle segnate per la rimozione
+  let keptPhotos = [];
+  if(isEditing && editingOriginalItem && editingOriginalItem.foto){
+    keptPhotos = editingOriginalItem.foto.filter(url => !editingRemovedPhotos.has(url));
   }
 
   const btn = document.getElementById("submit-btn");
@@ -2539,33 +1800,42 @@ document.getElementById("add-form").addEventListener("submit", async e=>{
 
   try {
     const fotoFiles = document.getElementById("f-foto").files;
+    let newPhotoUrls = [];
     if(fotoFiles && fotoFiles.length > 0){
-      entry.foto = await uploadPhotos(cfg, fotoFiles, entry.id, (done, total)=>{
+      newPhotoUrls = await uploadPhotos(cfg, fotoFiles, entry.id, (done, total)=>{
         btn.textContent = `Carico foto… (${done}/${total})`;
       });
     }
+    const allPhotos = keptPhotos.concat(newPhotoUrls);
+    if(allPhotos.length > 0) entry.foto = allPhotos;
+
     btn.textContent = "Salvataggio in corso…";
 
     const { content, sha } = await ghGetFile(cfg);
-    const newContent = insertItemIntoSource(content, entry);
-    await ghPutFile(cfg, newContent, sha, `Aggiunta voce: ${entry.nome}`);
+    const newContent = isEditing
+      ? replaceItemInSource(content, entry.id, entry)
+      : insertItemIntoSource(content, entry);
+    await ghPutFile(cfg, newContent, sha, isEditing ? `Modificata voce: ${entry.nome}` : `Aggiunta voce: ${entry.nome}`);
 
-    applyLocalAdd(entry);
-    alert(`"${entry.nome}" è stata salvata su GitHub. Sarà online entro 1-2 minuti, ed è già visibile qui in mappa.`);
-    document.getElementById("add-form").reset();
-    document.getElementById("escursione-fields").hidden = true;
-    document.getElementById("gpx-field").hidden = true;
-    document.getElementById("generated-wrap").style.display = "none";
-    parsedTraccia = null;
-    document.getElementById("gpx-preview-wrap").style.display = "none";
-    resetPickedLocation();
+    if(isEditing){
+      applyLocalReplace(entry);
+      alert(`"${entry.nome}" è stata aggiornata su GitHub, ed è già visibile qui.`);
+    } else {
+      applyLocalAdd(entry);
+      alert(`"${entry.nome}" è stata salvata su GitHub. Sarà online entro 1-2 minuti, ed è già visibile qui in mappa.`);
+    }
+    resetFormToCreateMode();
   } catch(err){
     console.error(err);
     const json = JSON.stringify(entry, null, 2);
-    document.getElementById("generated-code").value = "  ,\n  " + json.replace(/\n/g, "\n  ");
+    document.getElementById("generated-code").value = isEditing ? json : json + ",";
     document.getElementById("generated-wrap").style.display = "block";
     document.getElementById("generated-wrap").scrollIntoView({ behavior: "smooth", block: "nearest" });
-    alert("Non sono riuscito a salvare automaticamente su GitHub: " + err.message + "\n\nIn basso trovi il blocco di codice come soluzione di riserva, da incollare a mano.");
+    if(isEditing){
+      alert("Non sono riuscito a salvare le modifiche automaticamente: " + err.message + "\n\nIn basso trovi il blocco aggiornato: in data/luoghi.json su GitHub, sostituisci a mano il blocco { ... } esistente di questa voce con questo.");
+    } else {
+      alert("Non sono riuscito a salvare automaticamente su GitHub: " + err.message + "\n\nIn basso trovi il blocco di codice come soluzione di riserva, da incollare a mano in data/luoghi.json.");
+    }
   } finally {
     btn.disabled = false;
     btn.textContent = oldText;
@@ -2715,7 +1985,32 @@ document.getElementById("foto-upload-btn").addEventListener("click", async ()=>{
   }
 });
 
-navigate("home");
+// --- caricamento dati da file esterno (data/luoghi.json) ---
+const DEFAULT_DATA_PATH = "data/luoghi.json";
+
+async function loadInitialData(){
+  const banner = document.getElementById("data-status-banner");
+  banner.hidden = false;
+  banner.className = "data-status-banner loading";
+  banner.textContent = "Caricamento dati…";
+  try {
+    const res = await fetch(DEFAULT_DATA_PATH, { cache: "no-store" });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    if(!Array.isArray(data)) throw new Error("il file non contiene un elenco valido");
+    ITEMS = data;
+    banner.hidden = true;
+  } catch(err){
+    console.error("Impossibile caricare data/luoghi.json", err);
+    ITEMS = [];
+    banner.className = "data-status-banner error";
+    banner.textContent = `⚠ Non sono riuscito a caricare "${DEFAULT_DATA_PATH}" (${err.message}). Assicurati che il file esista nel repository, nella stessa cartella di index.html.`;
+  }
+}
+
+loadInitialData().then(()=>{
+  navigate("home");
+});
 </script>
 </body>
 </html>
