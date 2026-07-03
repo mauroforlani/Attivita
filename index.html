@@ -374,6 +374,16 @@ details.region[open] > summary::before { content: "–"; }
 .modal-actions .btn-copy { background: var(--ink); color: #fff; }
 .modal-actions .btn-close { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
 
+.detail-box { max-width: 620px; position: relative; padding-top: 2.2rem; }
+.detail-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: var(--surface); color: var(--ink);
+  width: 32px; height: 32px;
+}
+.detail-box h3 { font-size: 1.4rem; font-weight: 800; margin: 0.3rem 0 0.3rem; }
+.detail-box .luogo { font-family: var(--mono); font-size: 0.8rem; color: var(--ink-soft); margin-bottom: 0.8rem; }
+.detail-box p#detail-desc { font-size: 0.96rem; line-height: 1.6; color: #2c2f36; margin: 0 0 0.9rem; }
+
 /* --- thumbnail foto nelle card --- */
 .card-photos {
   display: flex;
@@ -770,6 +780,22 @@ button.submit:hover { background: #2b2f38; }
   </div>
 </div>
 
+<div class="modal-backdrop" id="detail-modal" hidden>
+  <div class="modal-box detail-box">
+    <button type="button" class="lightbox-close detail-close" id="detail-close-btn">✕</button>
+    <span class="badge" id="detail-badge"></span>
+    <h3 id="detail-title"></h3>
+    <div class="luogo" id="detail-luogo"></div>
+    <p id="detail-desc"></p>
+    <div class="extra-info" id="detail-extra"></div>
+    <div id="detail-map-wrap" style="display:none; margin:0.8rem 0;">
+      <div id="detail-map" style="height:220px; border-radius:8px; border:1px solid var(--border);"></div>
+    </div>
+    <div class="card-photos" id="detail-photos" style="margin:0.6rem 0;"></div>
+    <div class="modal-actions" id="detail-actions"></div>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="remove-modal" hidden>
   <div class="modal-box">
     <h3 id="remove-title">Eliminare questa voce?</h3>
@@ -872,826 +898,6 @@ const ITEMS = [
     "difficolta": "—",
     "durata": "1h",
     "link": "https://www.openstreetmap.org/"
-  },
-  {
-    "id": "monte-aga-mr4lrosz",
-    "tipo": "escursione",
-    "nome": "Monte Aga",
-    "regione": "Lombardia",
-    "comune": "Carona",
-    "descrizione": "Monte Aga passando dal Rifugio Longo, Passo Cigola",
-    "lat": 46.024901,
-    "lng": 9.795732,
-    "difficolta": "Difficile",
-    "durata": "20,6",
-    "link": "https://lucagherardi.com/monte-aga/",
-    "dislivello": "1585",
-    "traccia": [
-      [
-        46.024901,
-        9.795732
-      ],
-      [
-        46.024853,
-        9.797081
-      ],
-      [
-        46.024817,
-        9.797341
-      ],
-      [
-        46.025128,
-        9.799409
-      ],
-      [
-        46.025547,
-        9.80068
-      ],
-      [
-        46.025774,
-        9.802764
-      ],
-      [
-        46.025992,
-        9.803676
-      ],
-      [
-        46.025921,
-        9.804948
-      ],
-      [
-        46.026479,
-        9.806224
-      ],
-      [
-        46.026376,
-        9.807585
-      ],
-      [
-        46.0259,
-        9.80918
-      ],
-      [
-        46.02534,
-        9.811019
-      ],
-      [
-        46.025701,
-        9.812972
-      ],
-      [
-        46.025609,
-        9.814426
-      ],
-      [
-        46.025448,
-        9.815163
-      ],
-      [
-        46.025476,
-        9.815311
-      ],
-      [
-        46.025696,
-        9.815198
-      ],
-      [
-        46.025447,
-        9.816095
-      ],
-      [
-        46.026191,
-        9.815006
-      ],
-      [
-        46.026501,
-        9.814339
-      ],
-      [
-        46.027125,
-        9.814313
-      ],
-      [
-        46.027071,
-        9.81459
-      ],
-      [
-        46.027032,
-        9.815945
-      ],
-      [
-        46.026831,
-        9.816116
-      ],
-      [
-        46.027346,
-        9.816038
-      ],
-      [
-        46.027183,
-        9.816538
-      ],
-      [
-        46.02824,
-        9.815202
-      ],
-      [
-        46.028128,
-        9.816148
-      ],
-      [
-        46.027727,
-        9.817439
-      ],
-      [
-        46.027893,
-        9.817852
-      ],
-      [
-        46.028151,
-        9.818014
-      ],
-      [
-        46.028967,
-        9.816807
-      ],
-      [
-        46.029375,
-        9.816964
-      ],
-      [
-        46.028628,
-        9.818573
-      ],
-      [
-        46.02859,
-        9.821054
-      ],
-      [
-        46.02859,
-        9.823246
-      ],
-      [
-        46.028896,
-        9.824941
-      ],
-      [
-        46.028867,
-        9.826346
-      ],
-      [
-        46.029062,
-        9.828186
-      ],
-      [
-        46.029554,
-        9.831036
-      ],
-      [
-        46.029502,
-        9.83249
-      ],
-      [
-        46.029373,
-        9.834715
-      ],
-      [
-        46.029648,
-        9.835637
-      ],
-      [
-        46.029898,
-        9.835625
-      ],
-      [
-        46.030746,
-        9.836658
-      ],
-      [
-        46.031977,
-        9.838017
-      ],
-      [
-        46.032722,
-        9.839422
-      ],
-      [
-        46.032841,
-        9.840733
-      ],
-      [
-        46.033506,
-        9.843182
-      ],
-      [
-        46.034129,
-        9.844623
-      ],
-      [
-        46.034485,
-        9.845373
-      ],
-      [
-        46.034761,
-        9.846235
-      ],
-      [
-        46.034893,
-        9.847833
-      ],
-      [
-        46.035384,
-        9.850403
-      ],
-      [
-        46.036575,
-        9.852629
-      ],
-      [
-        46.037437,
-        9.853653
-      ],
-      [
-        46.038498,
-        9.854939
-      ],
-      [
-        46.038938,
-        9.855522
-      ],
-      [
-        46.039758,
-        9.856994
-      ],
-      [
-        46.040081,
-        9.858589
-      ],
-      [
-        46.040593,
-        9.860769
-      ],
-      [
-        46.039965,
-        9.861886
-      ],
-      [
-        46.039912,
-        9.862884
-      ],
-      [
-        46.040139,
-        9.863722
-      ],
-      [
-        46.040283,
-        9.864188
-      ],
-      [
-        46.040565,
-        9.864796
-      ],
-      [
-        46.040673,
-        9.864925
-      ],
-      [
-        46.040719,
-        9.865191
-      ],
-      [
-        46.040902,
-        9.865487
-      ],
-      [
-        46.04115,
-        9.866211
-      ],
-      [
-        46.041241,
-        9.86622
-      ],
-      [
-        46.041464,
-        9.866033
-      ],
-      [
-        46.04142,
-        9.866278
-      ],
-      [
-        46.041414,
-        9.866396
-      ],
-      [
-        46.041467,
-        9.86641
-      ],
-      [
-        46.04149,
-        9.86653
-      ],
-      [
-        46.041548,
-        9.866549
-      ],
-      [
-        46.041564,
-        9.866639
-      ],
-      [
-        46.041607,
-        9.866691
-      ],
-      [
-        46.041707,
-        9.866854
-      ],
-      [
-        46.041824,
-        9.867049
-      ],
-      [
-        46.041926,
-        9.867164
-      ],
-      [
-        46.042032,
-        9.867113
-      ],
-      [
-        46.042127,
-        9.867027
-      ],
-      [
-        46.04245,
-        9.866165
-      ],
-      [
-        46.042801,
-        9.865059
-      ],
-      [
-        46.043059,
-        9.864939
-      ],
-      [
-        46.04284,
-        9.863065
-      ],
-      [
-        46.043781,
-        9.864552
-      ],
-      [
-        46.044623,
-        9.865175
-      ],
-      [
-        46.045422,
-        9.866029
-      ],
-      [
-        46.046498,
-        9.867071
-      ],
-      [
-        46.047303,
-        9.868232
-      ],
-      [
-        46.048351,
-        9.869916
-      ],
-      [
-        46.048665,
-        9.871295
-      ],
-      [
-        46.049005,
-        9.872668
-      ],
-      [
-        46.049258,
-        9.874069
-      ],
-      [
-        46.04967,
-        9.874855
-      ],
-      [
-        46.049937,
-        9.876033
-      ],
-      [
-        46.050276,
-        9.876043
-      ],
-      [
-        46.050306,
-        9.875996
-      ],
-      [
-        46.049937,
-        9.876033
-      ],
-      [
-        46.049418,
-        9.877257
-      ],
-      [
-        46.048222,
-        9.878674
-      ],
-      [
-        46.047521,
-        9.8794
-      ],
-      [
-        46.047051,
-        9.879795
-      ],
-      [
-        46.046737,
-        9.880263
-      ],
-      [
-        46.047051,
-        9.879795
-      ],
-      [
-        46.047625,
-        9.879404
-      ],
-      [
-        46.048374,
-        9.878502
-      ],
-      [
-        46.049468,
-        9.877196
-      ],
-      [
-        46.049871,
-        9.87479
-      ],
-      [
-        46.049441,
-        9.874348
-      ],
-      [
-        46.048998,
-        9.873457
-      ],
-      [
-        46.048883,
-        9.872097
-      ],
-      [
-        46.048526,
-        9.87014
-      ],
-      [
-        46.047707,
-        9.86881
-      ],
-      [
-        46.046699,
-        9.867336
-      ],
-      [
-        46.045608,
-        9.866326
-      ],
-      [
-        46.044932,
-        9.865556
-      ],
-      [
-        46.043874,
-        9.864143
-      ],
-      [
-        46.043287,
-        9.863465
-      ],
-      [
-        46.043118,
-        9.864863
-      ],
-      [
-        46.042801,
-        9.865059
-      ],
-      [
-        46.04245,
-        9.866165
-      ],
-      [
-        46.042056,
-        9.867122
-      ],
-      [
-        46.041971,
-        9.867114
-      ],
-      [
-        46.041906,
-        9.867122
-      ],
-      [
-        46.041743,
-        9.866933
-      ],
-      [
-        46.041598,
-        9.866748
-      ],
-      [
-        46.041581,
-        9.866595
-      ],
-      [
-        46.041532,
-        9.866619
-      ],
-      [
-        46.041502,
-        9.866519
-      ],
-      [
-        46.041427,
-        9.866456
-      ],
-      [
-        46.041457,
-        9.866373
-      ],
-      [
-        46.041358,
-        9.866349
-      ],
-      [
-        46.04148,
-        9.866051
-      ],
-      [
-        46.04125,
-        9.866216
-      ],
-      [
-        46.04115,
-        9.866211
-      ],
-      [
-        46.040902,
-        9.865487
-      ],
-      [
-        46.040719,
-        9.865191
-      ],
-      [
-        46.040673,
-        9.864925
-      ],
-      [
-        46.040565,
-        9.864796
-      ],
-      [
-        46.040283,
-        9.864188
-      ],
-      [
-        46.040111,
-        9.863584
-      ],
-      [
-        46.039811,
-        9.862302
-      ],
-      [
-        46.040403,
-        9.8614
-      ],
-      [
-        46.040374,
-        9.859084
-      ],
-      [
-        46.039745,
-        9.857301
-      ],
-      [
-        46.039358,
-        9.856223
-      ],
-      [
-        46.038663,
-        9.854908
-      ],
-      [
-        46.037968,
-        9.854303
-      ],
-      [
-        46.036575,
-        9.852629
-      ],
-      [
-        46.035384,
-        9.850403
-      ],
-      [
-        46.034893,
-        9.847833
-      ],
-      [
-        46.034761,
-        9.846235
-      ],
-      [
-        46.034485,
-        9.845373
-      ],
-      [
-        46.034181,
-        9.844696
-      ],
-      [
-        46.033506,
-        9.843182
-      ],
-      [
-        46.032841,
-        9.840733
-      ],
-      [
-        46.032722,
-        9.839422
-      ],
-      [
-        46.031977,
-        9.838017
-      ],
-      [
-        46.030746,
-        9.836658
-      ],
-      [
-        46.029898,
-        9.835625
-      ],
-      [
-        46.029505,
-        9.835109
-      ],
-      [
-        46.029502,
-        9.83249
-      ],
-      [
-        46.029554,
-        9.831036
-      ],
-      [
-        46.029062,
-        9.828186
-      ],
-      [
-        46.028867,
-        9.826346
-      ],
-      [
-        46.028896,
-        9.824941
-      ],
-      [
-        46.028554,
-        9.823363
-      ],
-      [
-        46.028612,
-        9.821423
-      ],
-      [
-        46.028628,
-        9.818573
-      ],
-      [
-        46.029375,
-        9.816964
-      ],
-      [
-        46.028687,
-        9.817236
-      ],
-      [
-        46.028209,
-        9.817568
-      ],
-      [
-        46.027693,
-        9.818284
-      ],
-      [
-        46.02772,
-        9.817228
-      ],
-      [
-        46.028179,
-        9.815827
-      ],
-      [
-        46.027865,
-        9.815767
-      ],
-      [
-        46.027093,
-        9.816585
-      ],
-      [
-        46.02726,
-        9.816099
-      ],
-      [
-        46.02692,
-        9.816129
-      ],
-      [
-        46.027118,
-        9.815122
-      ],
-      [
-        46.027005,
-        9.814308
-      ],
-      [
-        46.02645,
-        9.814462
-      ],
-      [
-        46.02619,
-        9.814838
-      ],
-      [
-        46.025415,
-        9.815938
-      ],
-      [
-        46.025508,
-        9.815277
-      ],
-      [
-        46.025457,
-        9.815068
-      ],
-      [
-        46.025829,
-        9.813659
-      ],
-      [
-        46.025429,
-        9.811898
-      ],
-      [
-        46.025575,
-        9.810123
-      ],
-      [
-        46.026345,
-        9.808279
-      ],
-      [
-        46.026479,
-        9.806224
-      ],
-      [
-        46.025921,
-        9.804891
-      ],
-      [
-        46.025933,
-        9.803088
-      ],
-      [
-        46.025592,
-        9.800947
-      ],
-      [
-        46.025007,
-        9.799031
-      ],
-      [
-        46.024853,
-        9.797102
-      ],
-      [
-        46.024901,
-        9.795732
-      ]
-    ]
   }
 ];
 /* ===================================================================== */
@@ -1767,15 +973,20 @@ function renderCard(it){
         ${it.link?`<a href="${it.link}" target="_blank" rel="noopener">Apri ↗</a>`:""}
       </span>
     </div>`;
-  card.querySelector(".remove-btn").addEventListener("click", () => openRemoveModal(it));
+  card.querySelector(".remove-btn").addEventListener("click", (e) => { e.stopPropagation(); openRemoveModal(it); });
   if(it.traccia && it.traccia.length > 1){
-    card.querySelector(".gpx-download-btn").addEventListener("click", () => downloadGpx(it));
+    card.querySelector(".gpx-download-btn").addEventListener("click", (e) => { e.stopPropagation(); downloadGpx(it); });
   }
   if(it.foto && it.foto.length){
     card.querySelectorAll(".card-photos img").forEach(img=>{
-      img.addEventListener("click", ()=> openLightbox(it.foto, parseInt(img.dataset.idx,10), it.nome));
+      img.addEventListener("click", (e)=> { e.stopPropagation(); openLightbox(it.foto, parseInt(img.dataset.idx,10), it.nome); });
     });
   }
+  card.style.cursor = "pointer";
+  card.addEventListener("click", (e)=>{
+    if(e.target.closest(".remove-btn, .gpx-download-btn, .card-photos img, .stats a")) return;
+    openDetailModal(it);
+  });
   return card;
 }
 
@@ -1798,6 +1009,88 @@ function closeLightbox(){ document.getElementById("lightbox").hidden = true; }
 document.getElementById("lightbox-close").addEventListener("click", closeLightbox);
 document.getElementById("lightbox").addEventListener("click", (e)=>{
   if(e.target.id === "lightbox") closeLightbox();
+});
+
+// --- modal di dettaglio voce ---
+let detailMap = null;
+
+function openDetailModal(it){
+  document.getElementById("detail-badge").className = `badge ${it.tipo}`;
+  document.getElementById("detail-badge").textContent = TIPO_LABEL[it.tipo] || it.tipo;
+  document.getElementById("detail-title").textContent = it.nome;
+  document.getElementById("detail-luogo").textContent = `${it.comune ? it.comune + " · " : ""}${it.regione}`;
+  document.getElementById("detail-desc").textContent = it.descrizione || "";
+
+  const bits = [];
+  if(it.durata) bits.push(`<span>⏱ ${escapeHtml(it.durata)}</span>`);
+  if(it.difficolta && it.difficolta !== "—") bits.push(`<span>⚡ ${escapeHtml(it.difficolta)}</span>`);
+  if(it.dislivello) bits.push(`<span>⬆ ${escapeHtml(it.dislivello)}</span>`);
+  if(it.rifugi) bits.push(`<span>🏠 ${escapeHtml(it.rifugi)}</span>`);
+  document.getElementById("detail-extra").innerHTML = bits.join("");
+
+  const photosWrap = document.getElementById("detail-photos");
+  photosWrap.innerHTML = "";
+  if(it.foto && it.foto.length){
+    it.foto.forEach((url, idx)=>{
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = it.nome;
+      img.addEventListener("click", ()=> openLightbox(it.foto, idx, it.nome));
+      photosWrap.appendChild(img);
+    });
+  }
+
+  const actions = document.getElementById("detail-actions");
+  actions.innerHTML = "";
+  if(it.traccia && it.traccia.length > 1){
+    const gpxBtn = document.createElement("button");
+    gpxBtn.type = "button";
+    gpxBtn.className = "btn-copy";
+    gpxBtn.textContent = "⬇ Scarica GPX";
+    gpxBtn.addEventListener("click", ()=> downloadGpx(it));
+    actions.appendChild(gpxBtn);
+  }
+  if(it.link){
+    const a = document.createElement("a");
+    a.href = it.link;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.className = "btn-close";
+    a.style.textDecoration = "none";
+    a.style.display = "inline-block";
+    a.textContent = "Apri link ↗";
+    actions.appendChild(a);
+  }
+
+  const mapWrap = document.getElementById("detail-map-wrap");
+  const hasMap = (it.traccia && it.traccia.length > 1) || (typeof it.lat === "number" && typeof it.lng === "number");
+  document.getElementById("detail-modal").hidden = false;
+
+  if(hasMap){
+    mapWrap.style.display = "block";
+    setTimeout(()=>{
+      if(detailMap){ detailMap.remove(); detailMap = null; }
+      detailMap = L.map("detail-map", { scrollWheelZoom: false });
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap", maxZoom: 18 }).addTo(detailMap);
+      addMarkers(detailMap, [it]);
+      if(it.traccia && it.traccia.length > 1){
+        detailMap.fitBounds(L.latLngBounds(it.traccia), { padding: [16,16] });
+      } else {
+        detailMap.setView([it.lat, it.lng], 12);
+      }
+      detailMap.invalidateSize();
+    }, 50);
+  } else {
+    mapWrap.style.display = "none";
+  }
+}
+
+function closeDetailModal(){
+  document.getElementById("detail-modal").hidden = true;
+}
+document.getElementById("detail-close-btn").addEventListener("click", closeDetailModal);
+document.getElementById("detail-modal").addEventListener("click", (e)=>{
+  if(e.target.id === "detail-modal") closeDetailModal();
 });
 
 // --- esportazione traccia GPX ---
