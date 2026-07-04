@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sentieri & Strade — Escursioni, motogiri e punti di interesse</title>
+<title>Attività Mauro — Escursioni, motogiri e punti di interesse</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -474,6 +474,26 @@ details.region[open] > summary::before { content: "–"; }
   cursor: pointer;
 }
 
+.moto-day-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.9rem 1rem;
+}
+.moto-day-block .row { margin-bottom: 0.8rem; }
+.moto-day-block .field:last-child { margin-bottom: 0; }
+
+.detail-day-block {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.7rem;
+}
+.detail-day-block:last-child { margin-bottom: 0; }
+.detail-day-title { font-family: var(--display); font-weight: 700; font-size: 1rem; margin-bottom: 0.4rem; }
+.detail-day-stats { display: flex; gap: 0.9rem; font-family: var(--mono); font-size: 0.78rem; color: var(--ink-soft); margin-bottom: 0.4rem; }
+.detail-day-block p { font-size: 0.88rem; color: #2c2f36; margin: 0; }
+
 /* --- thumbnail foto nelle card --- */
 .card-photos {
   display: flex;
@@ -723,7 +743,7 @@ button.submit:hover { background: #2b2f38; }
 
 <nav class="site-nav">
   <div class="nav-inner">
-    <a href="javascript:void(0)" class="logo" data-view="home">Sentieri & Strade</a>
+    <a href="javascript:void(0)" class="logo" data-view="home">Attività Mauro</a>
     <div class="nav-links">
       <a href="javascript:void(0)" data-view="escursioni">Escursioni</a>
       <a href="javascript:void(0)" data-view="motogiri">Motogiri</a>
@@ -761,7 +781,7 @@ button.submit:hover { background: #2b2f38; }
       <div class="go">Esplora →</div>
     </a>
   </div>
-  <footer>Sentieri & Strade — catalogo personale</footer>
+  <footer>Attività Mauro — catalogo personale</footer>
 </div>
 
 <div id="view-escursioni" class="view section-view" hidden data-tipo="escursione" data-color="t-escursione"
@@ -839,9 +859,12 @@ button.submit:hover { background: #2b2f38; }
         <p class="desc" id="comune-status">Scegli un suggerimento dalla lista: imposta comune, regione e posizione in automatico.</p>
       </div>
       <div class="field"><label for="f-regione">Regione</label><select id="f-regione" required></select></div>
-      <div class="field"><label for="f-descrizione">Descrizione</label><textarea id="f-descrizione" placeholder="Breve descrizione, punti notevoli, consigli…" required></textarea></div>
+      <div class="field" id="field-descrizione">
+        <label for="f-descrizione">Descrizione</label>
+        <textarea id="f-descrizione" placeholder="Breve descrizione, punti notevoli, consigli…"></textarea>
+      </div>
 
-      <div class="row">
+      <div class="row" id="field-difficolta-durata">
         <div class="field">
           <label for="f-difficolta">Difficoltà</label>
           <select id="f-difficolta"><option value="—">—</option><option>Facile</option><option>Media</option><option>Difficile</option></select>
@@ -862,6 +885,17 @@ button.submit:hover { background: #2b2f38; }
           <div id="gpx-preview-map" style="height:220px; border-radius:8px; border:1px solid var(--border);"></div>
           <p class="desc" id="gpx-preview-info"></p>
         </div>
+      </div>
+
+      <div class="field" id="moto-fields" hidden>
+        <label for="f-giorni-count">Durata del motogiro</label>
+        <select id="f-giorni-count">
+          <option value="1">1 giorno</option>
+          <option value="2">2 giorni</option>
+          <option value="3">3 giorni</option>
+        </select>
+        <p class="desc">Compila lunghezza, durata e tappa per ciascun giorno del motogiro.</p>
+        <div id="moto-days-container" style="margin-top:0.9rem; display:flex; flex-direction:column; gap:0.9rem;"></div>
       </div>
 
       <div class="field">
@@ -894,6 +928,10 @@ button.submit:hover { background: #2b2f38; }
       <h3 id="detail-title"></h3>
       <div class="luogo" id="detail-luogo"></div>
       <div class="detail-stats-grid" id="detail-stats"></div>
+      <div id="detail-days-wrap" style="display:none; margin:0.2rem 0 1.2rem;">
+        <p class="detail-section-label">Tappe</p>
+        <div id="detail-days"></div>
+      </div>
       <p id="detail-desc"></p>
       <div id="detail-map-wrap" style="display:none; margin:1.2rem 0;">
         <div id="detail-map" style="height:360px; border-radius:8px; border:1px solid var(--border);"></div>
@@ -1011,16 +1049,30 @@ function addMarkers(map, items){
 function groupByRegione(items){
   const out={}; items.forEach(it=>(out[it.regione]=out[it.regione]||[]).push(it)); return out;
 }
-function renderCard(it){
-  const card=document.createElement("div");
-  card.className=`card t-${it.tipo}`;
-  const extraInfo = it.tipo === "escursione"
-    ? `<div class="extra-info">
+function extraInfoHtml(it){
+  if(it.tipo === "escursione"){
+    return `<div class="extra-info">
         ${it.dislivello ? `<span>⬆ ${escapeHtml(it.dislivello)}</span>` : ""}
         ${it.rifugi ? `<span>🏠 ${escapeHtml(it.rifugi)}</span>` : ""}
         ${it.traccia && it.traccia.length ? `<span>📍 Traccia GPX disponibile</span>` : ""}
-      </div>`
-    : "";
+      </div>`;
+  }
+  if(it.tipo === "moto" && it.giorni && it.giorni.length){
+    const g = it.giorni;
+    const bits = [`<span>🗺 ${g.length} ${g.length > 1 ? "giorni" : "giorno"}</span>`];
+    if(g.length === 1){
+      if(g[0].lunghezza) bits.push(`<span>${escapeHtml(g[0].lunghezza)}</span>`);
+      if(g[0].durata) bits.push(`<span>${escapeHtml(g[0].durata)}</span>`);
+    }
+    return `<div class="extra-info">${bits.join("")}</div>`;
+  }
+  return "";
+}
+
+function renderCard(it){
+  const card=document.createElement("div");
+  card.className=`card t-${it.tipo}`;
+  const extraInfo = extraInfoHtml(it);
   const photosHtml = (it.foto && it.foto.length)
     ? `<div class="card-photos">${it.foto.map((url,i)=>`<img src="${escapeAttr(url)}" alt="Foto ${i+1} di ${escapeAttr(it.nome)}" data-idx="${i}">`).join("")}</div>`
     : "";
@@ -1032,7 +1084,7 @@ function renderCard(it){
       </div>
     </div>
     <div class="luogo">${escapeHtml(it.comune||"")}${it.comune?" · ":""}${escapeHtml(it.regione)}</div>
-    <p>${escapeHtml(it.descrizione||"")}</p>
+    ${it.descrizione ? `<p>${escapeHtml(it.descrizione)}</p>` : ""}
     ${extraInfo}
     ${photosHtml}
     <div class="stats">
@@ -1089,21 +1141,44 @@ function openDetailModal(it){
   document.getElementById("detail-badge").textContent = TIPO_LABEL[it.tipo] || it.tipo;
   document.getElementById("detail-title").textContent = it.nome;
   document.getElementById("detail-luogo").textContent = `${it.comune ? it.comune + " · " : ""}${it.regione}`;
-  document.getElementById("detail-desc").textContent = it.descrizione || "";
+
+  const descEl = document.getElementById("detail-desc");
+  descEl.textContent = it.descrizione || "";
+  descEl.style.display = it.descrizione ? "block" : "none";
+
+  const hasGiorni = it.tipo === "moto" && it.giorni && it.giorni.length > 0;
 
   const stats = [];
   if(it.comune) stats.push(["Partenza", it.comune]);
   stats.push(["Regione", it.regione]);
-  if(it.durata) stats.push(["Durata / Lunghezza", it.durata]);
-  if(it.difficolta && it.difficolta !== "—") stats.push(["Difficoltà", it.difficolta]);
+  if(!hasGiorni && it.durata) stats.push(["Durata / Lunghezza", it.durata]);
+  if(!hasGiorni && it.difficolta && it.difficolta !== "—") stats.push(["Difficoltà", it.difficolta]);
   if(it.dislivello) stats.push(["Dislivello", it.dislivello]);
   if(it.rifugi) stats.push(["Rifugi", it.rifugi]);
+  if(hasGiorni) stats.push(["Giorni", String(it.giorni.length)]);
   document.getElementById("detail-stats").innerHTML = stats.map(([label, value]) => `
     <div class="detail-stat">
       <div class="stat-label">${escapeHtml(label)}</div>
       <div class="stat-value">${escapeHtml(value)}</div>
     </div>
   `).join("");
+
+  const daysWrap = document.getElementById("detail-days-wrap");
+  if(hasGiorni){
+    daysWrap.style.display = "block";
+    document.getElementById("detail-days").innerHTML = it.giorni.map((g, i) => `
+      <div class="detail-day-block">
+        <div class="detail-day-title">Giorno ${i + 1}${g.tappa ? " — " + escapeHtml(g.tappa) : ""}</div>
+        <div class="detail-day-stats">
+          ${g.lunghezza ? `<span>${escapeHtml(g.lunghezza)}</span>` : ""}
+          ${g.durata ? `<span>${escapeHtml(g.durata)}</span>` : ""}
+        </div>
+        ${g.note ? `<p>${escapeHtml(g.note)}</p>` : ""}
+      </div>
+    `).join("");
+  } else {
+    daysWrap.style.display = "none";
+  }
 
   const photosOuterWrap = document.getElementById("detail-photos-wrap");
   const photosWrap = document.getElementById("detail-photos");
@@ -1180,7 +1255,7 @@ function buildGpxContent(it){
     .map(p => `      <trkpt lat="${p[0]}" lon="${p[1]}"></trkpt>`)
     .join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="Sentieri e Strade" xmlns="http://www.topografix.com/GPX/1/1">
+<gpx version="1.1" creator="Attività Mauro" xmlns="http://www.topografix.com/GPX/1/1">
   <metadata>
     <name>${escapeHtml(it.nome)}</name>
   </metadata>
@@ -1244,7 +1319,7 @@ document.querySelectorAll(".section-view").forEach(view => {
       <span class="count-label" id="result-count-${tipo}"></span>
     </section>
     <section class="list" id="list-${tipo}"></section>
-    <footer>Sentieri & Strade — catalogo personale</footer>
+    <footer>Attività Mauro — catalogo personale</footer>
   `;
   const sel = view.querySelector(`#filter-regione-${tipo}`);
   REGIONI.forEach(r=>{ const o=document.createElement("option"); o.value=r; o.textContent=r; sel.appendChild(o); });
@@ -1665,6 +1740,10 @@ function resetFormToCreateMode(){
   document.getElementById("add-form").reset();
   document.getElementById("escursione-fields").hidden = true;
   document.getElementById("gpx-field").hidden = true;
+  document.getElementById("moto-fields").hidden = true;
+  document.getElementById("moto-days-container").innerHTML = "";
+  document.getElementById("field-descrizione").hidden = false;
+  document.getElementById("field-difficolta-durata").hidden = false;
   document.getElementById("generated-wrap").style.display = "none";
   parsedTraccia = null;
   document.getElementById("gpx-preview-wrap").style.display = "none";
@@ -1695,6 +1774,12 @@ function openEditForm(it){
   document.getElementById("f-link").value = it.link || "";
   document.getElementById("f-dislivello").value = it.dislivello || "";
   document.getElementById("f-rifugi").value = it.rifugi || "";
+
+  if(it.tipo === "moto"){
+    const count = (it.giorni && it.giorni.length) ? Math.min(it.giorni.length, 3) : 1;
+    document.getElementById("f-giorni-count").value = String(count);
+    renderMotoDayBlocks(count, it.giorni || []);
+  }
 
   if(typeof it.lat === "number" && typeof it.lng === "number"){
     setPickedLocation(it.lat, it.lng, "voce esistente");
@@ -1735,10 +1820,58 @@ function openEditForm(it){
 document.getElementById("cancel-edit-btn").addEventListener("click", resetFormToCreateMode);
 
 document.getElementById("f-tipo").addEventListener("change", (e)=>{
-  const isEscursione = e.target.value === "escursione";
+  const tipo = e.target.value;
+  const isEscursione = tipo === "escursione";
+  const isMoto = tipo === "moto";
+  const isPoi = tipo === "poi";
+
   document.getElementById("escursione-fields").hidden = !isEscursione;
   document.getElementById("gpx-field").hidden = !isEscursione;
+  document.getElementById("moto-fields").hidden = !isMoto;
+
+  document.getElementById("field-descrizione").hidden = isPoi;
+  document.getElementById("field-difficolta-durata").hidden = !isEscursione;
+
+  if(isMoto && document.getElementById("moto-days-container").children.length === 0){
+    renderMotoDayBlocks(parseInt(document.getElementById("f-giorni-count").value, 10));
+  }
 });
+
+// --- motogiri: blocchi giorno per giorno ---
+function renderMotoDayBlocks(count, existingDays){
+  const container = document.getElementById("moto-days-container");
+  container.innerHTML = "";
+  for(let i = 0; i < count; i++){
+    const day = (existingDays && existingDays[i]) || {};
+    const block = document.createElement("div");
+    block.className = "moto-day-block";
+    block.innerHTML = `
+      <p class="detail-section-label" style="margin-bottom:0.6rem;">Giorno ${i + 1}</p>
+      <div class="row">
+        <div class="field"><label>Lunghezza</label><input type="text" class="moto-day-lunghezza" placeholder="Es. 180 km"></div>
+        <div class="field"><label>Durata</label><input type="text" class="moto-day-durata" placeholder="Es. 4h"></div>
+      </div>
+      <div class="field"><label>Tappa / pernottamento</label><input type="text" class="moto-day-tappa" placeholder="Es. Bormio"></div>
+      <div class="field"><label>Note del giorno</label><textarea class="moto-day-note" placeholder="Percorso, strade, soste…"></textarea></div>
+    `;
+    block.querySelector(".moto-day-lunghezza").value = day.lunghezza || "";
+    block.querySelector(".moto-day-durata").value = day.durata || "";
+    block.querySelector(".moto-day-tappa").value = day.tappa || "";
+    block.querySelector(".moto-day-note").value = day.note || "";
+    container.appendChild(block);
+  }
+}
+document.getElementById("f-giorni-count").addEventListener("change", (e)=>{
+  renderMotoDayBlocks(parseInt(e.target.value, 10));
+});
+function collectMotoDays(){
+  return Array.from(document.querySelectorAll("#moto-days-container .moto-day-block")).map(block => ({
+    lunghezza: block.querySelector(".moto-day-lunghezza").value.trim(),
+    durata: block.querySelector(".moto-day-durata").value.trim(),
+    tappa: block.querySelector(".moto-day-tappa").value.trim(),
+    note: block.querySelector(".moto-day-note").value.trim()
+  }));
+}
 
 // --- parsing GPX lato browser ---
 function haversine(a, b){
@@ -1868,14 +2001,18 @@ document.getElementById("add-form").addEventListener("submit", async e=>{
     nome: document.getElementById("f-nome").value,
     regione: document.getElementById("f-regione").value,
     comune: document.getElementById("f-comune").value,
-    descrizione: document.getElementById("f-descrizione").value,
     lat: pickedLat,
     lng: pickedLng,
-    difficolta: document.getElementById("f-difficolta").value,
-    durata: document.getElementById("f-durata").value,
     link: document.getElementById("f-link").value
   };
+
+  if(tipo !== "poi"){
+    entry.descrizione = document.getElementById("f-descrizione").value;
+  }
+
   if(tipo === "escursione"){
+    entry.difficolta = document.getElementById("f-difficolta").value;
+    entry.durata = document.getElementById("f-durata").value;
     const dislivello = document.getElementById("f-dislivello").value.trim();
     const rifugi = document.getElementById("f-rifugi").value.trim();
     if(dislivello) entry.dislivello = dislivello;
@@ -1885,7 +2022,10 @@ document.getElementById("add-form").addEventListener("submit", async e=>{
     } else if(isEditing && editingOriginalItem && editingOriginalItem.traccia){
       entry.traccia = editingOriginalItem.traccia; // nessuna nuova traccia: mantiene quella esistente
     }
+  } else if(tipo === "moto"){
+    entry.giorni = collectMotoDays();
   }
+  // per "poi" non salviamo altro: solo nome, luogo (comune/regione/coordinate) e foto
 
   // foto esistenti (in modifica) meno quelle segnate per la rimozione
   let keptPhotos = [];
