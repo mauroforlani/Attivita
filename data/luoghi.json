@@ -1,20 +1,5 @@
 [
   {
-    "id": "anello-lago-sorapis",
-    "tipo": "escursione",
-    "nome": "Anello del Lago di Sorapis",
-    "regione": "Veneto",
-    "comune": "Cortina d'Ampezzo",
-    "descrizione": "Sentiero panoramico fino al celebre lago dalle acque turchesi, ai piedi delle Dolomiti. Tratti attrezzati nella parte finale.",
-    "lat": 46.5139,
-    "lng": 12.2486,
-    "difficolta": "Media",
-    "durata": "4h, 11 km",
-    "link": "https://www.openstreetmap.org/",
-    "dislivello": "850 m",
-    "rifugi": "Rifugio Vandelli"
-  },
-  {
     "id": "monte-aga-mr5zqo80",
     "tipo": "escursione",
     "nome": "Monte Aga",
