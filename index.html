@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sentieri & Strade — Escursioni, motogiri e punti di interesse</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -421,6 +424,55 @@ details.region[open] > summary::before { content: "–"; }
 .detail-box h3 { font-size: 1.4rem; font-weight: 800; margin: 0.3rem 0 0.3rem; }
 .detail-box .luogo { font-family: var(--mono); font-size: 0.8rem; color: var(--ink-soft); margin-bottom: 0.8rem; }
 .detail-box p#detail-desc { font-size: 0.96rem; line-height: 1.6; color: #2c2f36; margin: 0 0 0.9rem; }
+
+.detail-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.7rem;
+  margin: 0.2rem 0 1.3rem;
+}
+.detail-stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 0.9rem;
+}
+.detail-stat .stat-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  margin-bottom: 0.3rem;
+}
+.detail-stat .stat-value {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  line-height: 1.25;
+}
+
+.detail-section-label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  margin: 0 0 0.6rem;
+}
+.detail-photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.7rem;
+}
+.detail-photos-grid img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
 
 /* --- thumbnail foto nelle card --- */
 .card-photos {
@@ -841,12 +893,15 @@ button.submit:hover { background: #2b2f38; }
       <span class="badge" id="detail-badge"></span>
       <h3 id="detail-title"></h3>
       <div class="luogo" id="detail-luogo"></div>
+      <div class="detail-stats-grid" id="detail-stats"></div>
       <p id="detail-desc"></p>
-      <div class="extra-info" id="detail-extra"></div>
-      <div id="detail-map-wrap" style="display:none; margin:0.8rem 0;">
-        <div id="detail-map" style="height:340px; border-radius:8px; border:1px solid var(--border);"></div>
+      <div id="detail-map-wrap" style="display:none; margin:1.2rem 0;">
+        <div id="detail-map" style="height:360px; border-radius:8px; border:1px solid var(--border);"></div>
       </div>
-      <div class="card-photos" id="detail-photos" style="margin:0.6rem 0;"></div>
+      <div id="detail-photos-wrap" style="display:none; margin:1.2rem 0;">
+        <p class="detail-section-label">Foto</p>
+        <div class="detail-photos-grid" id="detail-photos"></div>
+      </div>
       <div class="modal-actions" id="detail-actions"></div>
     </div>
   </div>
@@ -1036,16 +1091,25 @@ function openDetailModal(it){
   document.getElementById("detail-luogo").textContent = `${it.comune ? it.comune + " · " : ""}${it.regione}`;
   document.getElementById("detail-desc").textContent = it.descrizione || "";
 
-  const bits = [];
-  if(it.durata) bits.push(`<span>⏱ ${escapeHtml(it.durata)}</span>`);
-  if(it.difficolta && it.difficolta !== "—") bits.push(`<span>⚡ ${escapeHtml(it.difficolta)}</span>`);
-  if(it.dislivello) bits.push(`<span>⬆ ${escapeHtml(it.dislivello)}</span>`);
-  if(it.rifugi) bits.push(`<span>🏠 ${escapeHtml(it.rifugi)}</span>`);
-  document.getElementById("detail-extra").innerHTML = bits.join("");
+  const stats = [];
+  if(it.comune) stats.push(["Partenza", it.comune]);
+  stats.push(["Regione", it.regione]);
+  if(it.durata) stats.push(["Durata / Lunghezza", it.durata]);
+  if(it.difficolta && it.difficolta !== "—") stats.push(["Difficoltà", it.difficolta]);
+  if(it.dislivello) stats.push(["Dislivello", it.dislivello]);
+  if(it.rifugi) stats.push(["Rifugi", it.rifugi]);
+  document.getElementById("detail-stats").innerHTML = stats.map(([label, value]) => `
+    <div class="detail-stat">
+      <div class="stat-label">${escapeHtml(label)}</div>
+      <div class="stat-value">${escapeHtml(value)}</div>
+    </div>
+  `).join("");
 
+  const photosOuterWrap = document.getElementById("detail-photos-wrap");
   const photosWrap = document.getElementById("detail-photos");
   photosWrap.innerHTML = "";
   if(it.foto && it.foto.length){
+    photosOuterWrap.style.display = "block";
     it.foto.forEach((url, idx)=>{
       const img = document.createElement("img");
       img.src = url;
@@ -1053,6 +1117,8 @@ function openDetailModal(it){
       img.addEventListener("click", ()=> openLightbox(it.foto, idx, it.nome));
       photosWrap.appendChild(img);
     });
+  } else {
+    photosOuterWrap.style.display = "none";
   }
 
   const actions = document.getElementById("detail-actions");
