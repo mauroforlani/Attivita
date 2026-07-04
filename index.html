@@ -894,6 +894,7 @@ const TIPO_COLOR = { escursione: "#15803d", moto: "#c2410c", poi: "#1d4ed8" };
 const REGIONI = ["Abruzzo","Basilicata","Calabria","Campania","Emilia-Romagna","Friuli-Venezia Giulia","Lazio","Liguria","Lombardia","Marche","Molise","Piemonte","Puglia","Sardegna","Sicilia","Toscana","Trentino-Alto Adige","Umbria","Valle d'Aosta","Veneto"];
 
 function escapeHtml(str){return String(str).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
+function escapeAttr(str){ return escapeHtml(str); }
 
 function createItalyMap(containerId){
   const map = L.map(containerId,{scrollWheelZoom:false}).setView([42.5,12.5],6);
