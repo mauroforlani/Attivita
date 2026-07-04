@@ -1410,7 +1410,12 @@ document.getElementById("gh-settings-clear").addEventListener("click", ()=>{
 
 // --- chiamate dirette alle API di GitHub (Contents API) ---
 function b64EncodeUtf8(str){ return btoa(unescape(encodeURIComponent(str))); }
-function b64DecodeUtf8(str){ return decodeURIComponent(escape(atob(str.replace(/\n/g, "")))); }
+function b64DecodeUtf8(str){
+  let decoded = decodeURIComponent(escape(atob(str.replace(/\n/g, ""))));
+  // rimuove un eventuale BOM (byte order mark) iniziale, che alcuni editor aggiungono da soli
+  decoded = decoded.replace(/^\uFEFF/, "");
+  return decoded;
+}
 
 async function ghGetFile(cfg){
   const url = `https://api.github.com/repos/${cfg.repo}/contents/${encodeURIComponent(cfg.path)}?ref=${encodeURIComponent(cfg.branch)}`;
@@ -1442,13 +1447,18 @@ async function ghPutFile(cfg, newContent, sha, message){
 
 // legge l'array JSON del file dati, ci applica una funzione di modifica, e restituisce il nuovo testo da salvare
 function applyToDataArray(sourceText, mutateFn){
+  const trimmed = sourceText.trim();
+  if(trimmed === ""){
+    throw new Error('Il file dati è vuoto. Apri "data/luoghi.json" su GitHub e verifica che contenga un elenco tra [ e ].');
+  }
   let arr;
   try {
-    arr = JSON.parse(sourceText);
+    arr = JSON.parse(trimmed);
   } catch(e){
-    throw new Error("Il file dati non è un JSON valido.");
+    const preview = trimmed.slice(0, 60).replace(/\s+/g, " ");
+    throw new Error(`Il file dati non è un JSON valido (inizia con: "${preview}${trimmed.length > 60 ? "…" : ""}"). Controlla che il file su GitHub inizi con [ e finisca con ], senza testo extra.`);
   }
-  if(!Array.isArray(arr)) throw new Error("Il file dati non contiene un elenco.");
+  if(!Array.isArray(arr)) throw new Error("Il file dati non contiene un elenco (deve iniziare con [ ).");
   mutateFn(arr);
   return JSON.stringify(arr, null, 2) + "\n";
 }
@@ -1996,15 +2006,23 @@ async function loadInitialData(){
   try {
     const res = await fetch(DEFAULT_DATA_PATH, { cache: "no-store" });
     if(!res.ok) throw new Error("HTTP " + res.status);
-    const data = await res.json();
-    if(!Array.isArray(data)) throw new Error("il file non contiene un elenco valido");
+    const text = (await res.text()).trim();
+    if(text === "") throw new Error("il file è vuoto");
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch(e){
+      const preview = text.slice(0, 60).replace(/\s+/g, " ");
+      throw new Error(`JSON non valido (inizia con: "${preview}${text.length > 60 ? "…" : ""}")`);
+    }
+    if(!Array.isArray(data)) throw new Error("il file non contiene un elenco valido (deve iniziare con [ )");
     ITEMS = data;
     banner.hidden = true;
   } catch(err){
     console.error("Impossibile caricare data/luoghi.json", err);
     ITEMS = [];
     banner.className = "data-status-banner error";
-    banner.textContent = `⚠ Non sono riuscito a caricare "${DEFAULT_DATA_PATH}" (${err.message}). Assicurati che il file esista nel repository, nella stessa cartella di index.html.`;
+    banner.textContent = `⚠ Non sono riuscito a caricare "${DEFAULT_DATA_PATH}": ${err.message}. Assicurati che il file esista nel repository, nella stessa cartella di index.html, e che sia un JSON valido.`;
   }
 }
 
