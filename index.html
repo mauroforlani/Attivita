@@ -24,6 +24,7 @@
   --orange-soft: #fff3ec;
   --blue: #1d4ed8;
   --violet: #7c3aed;
+  --teal: #0e7490;
   --blue-soft: #eef3ff;
 
   --radius: 14px;
@@ -101,6 +102,8 @@ h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.01em; }
 .nav-links a.active.t-moto { color: var(--orange); border-color: var(--orange); }
 .nav-links a.active.t-poi { color: var(--blue); border-color: var(--blue); }
 .nav-links a.active.t-foto { color: var(--violet); border-color: var(--violet); }
+.nav-links a.active.t-viaggio { color: var(--teal); border-color: var(--teal); }
+.section-header .eyebrow.t-viaggio { color: var(--teal); }
 
 .btn-add {
   text-decoration: none;
@@ -415,7 +418,7 @@ details.region[open] > summary::before { content: "–"; }
 .detail-box .detail-inner { max-width: 720px; margin: 0 auto; }
 .detail-close {
   position: fixed; top: 1.2rem; right: 1.5rem;
-  background: var(--surface); color: var(--ink);
+  background: var(--surface) !important; color: var(--ink) !important;
   width: 36px; height: 36px;
   box-shadow: var(--shadow);
 }
@@ -494,6 +497,58 @@ details.region[open] > summary::before { content: "–"; }
 .detail-day-title { font-family: var(--display); font-weight: 700; font-size: 1rem; margin-bottom: 0.4rem; }
 .detail-day-stats { display: flex; gap: 0.9rem; font-family: var(--mono); font-size: 0.78rem; color: var(--ink-soft); margin-bottom: 0.4rem; }
 .detail-day-block p { font-size: 0.88rem; color: #2c2f36; margin: 0; }
+
+.btn-list-view {
+  margin-top: 1rem;
+  font-family: var(--body);
+  font-weight: 700;
+  font-size: 0.86rem;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1.1rem;
+  cursor: pointer;
+}
+.btn-list-view:hover { background: #2b2f38; }
+
+.list-modal-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  align-items: center;
+  margin: 1.2rem 0 1.2rem;
+}
+.list-modal-controls select,
+.list-modal-controls input[type="search"] {
+  font-family: var(--body);
+  font-size: 0.88rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+.list-modal-controls input[type="search"] { flex: 1; min-width: 180px; }
+.list-checkbox { font-size: 0.86rem; color: var(--ink-soft); display: flex; align-items: center; gap: 0.4rem; }
+
+.list-table-wrap { overflow-x: auto; }
+.list-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.list-table th, .list-table td { text-align: left; padding: 0.6rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.list-table thead th {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  cursor: pointer;
+  user-select: none;
+}
+.list-table thead th:hover { color: var(--ink); }
+.list-table thead th.sorted-asc::after { content: " ▲"; }
+.list-table thead th.sorted-desc::after { content: " ▼"; }
+.list-table tbody tr { cursor: pointer; }
+.list-table tbody tr:hover { background: var(--surface); }
+.list-table tbody td.empty-state { text-align: center; padding: 2rem; white-space: normal; }
 
 /* --- thumbnail foto nelle card --- */
 .card-photos {
@@ -750,6 +805,7 @@ button.submit:hover { background: #2b2f38; }
       <a href="javascript:void(0)" data-view="motogiri">Motogiri</a>
       <a href="javascript:void(0)" data-view="poi">Punti di interesse</a>
       <a href="javascript:void(0)" data-view="foto">Foto</a>
+      <a href="javascript:void(0)" data-view="viaggio-faroe-islanda">Far Öer & Islanda 2026</a>
     </div>
     <a href="javascript:void(0)" class="btn-add" data-view="add">+ Aggiungi voce</a>
   </div>
@@ -793,6 +849,10 @@ button.submit:hover { background: #2b2f38; }
 
 <div id="view-poi" class="view section-view" hidden data-tipo="poi" data-color="t-poi"
      data-title="Punti di interesse" data-lead="Borghi, monumenti e tappe da non perdere lungo i tuoi itinerari, regione per regione."></div>
+
+<div id="view-viaggio-faroe-islanda" class="view trip-view" hidden
+     data-viaggio="Isole Far Öer e Islanda 2026" data-color="t-viaggio"
+     data-title="Far Öer & Islanda 2026" data-lead="Escursioni e punti di interesse per il viaggio nelle Isole Faroe e nell'Islanda centrale, in un unico tab."></div>
 
 <div id="view-foto" class="view" hidden>
   <div class="section-header">
@@ -844,6 +904,14 @@ button.submit:hover { background: #2b2f38; }
 
     <form id="add-form">
       <div class="field">
+        <label for="f-viaggio">Viaggio (facoltativo)</label>
+        <select id="f-viaggio">
+          <option value="">— Nessuno (Italia) —</option>
+          <option value="Isole Far Öer e Islanda 2026">Isole Far Öer e Islanda 2026</option>
+        </select>
+        <p class="desc">Se scegli un viaggio, la voce comparrà anche nel suo tab dedicato, oltre alla sezione normale.</p>
+      </div>
+      <div class="field">
         <label for="f-tipo">Sezione</label>
         <select id="f-tipo" required>
           <option value="">Seleziona…</option>
@@ -859,7 +927,8 @@ button.submit:hover { background: #2b2f38; }
         <ul id="comune-suggestions" class="suggestions" hidden></ul>
         <p class="desc" id="comune-status">Scegli un suggerimento dalla lista: imposta comune, regione e posizione in automatico.</p>
       </div>
-      <div class="field"><label for="f-regione">Regione</label><select id="f-regione" required></select></div>
+      <div class="field" id="field-regione-italia"><label for="f-regione">Regione</label><select id="f-regione" required></select></div>
+      <div class="field" id="field-regione-libera" hidden><label for="f-regione-libera">Regione / area</label><input type="text" id="f-regione-libera" placeholder="Es. Isole Faroe, Islanda"></div>
       <div class="field" id="field-descrizione">
         <label for="f-descrizione">Descrizione</label>
         <textarea id="f-descrizione" placeholder="Breve descrizione, punti notevoli, consigli…"></textarea>
@@ -917,6 +986,45 @@ button.submit:hover { background: #2b2f38; }
       <p class="desc">Non sono riuscito a salvare automaticamente. Copia questo blocco e incollalo dentro l'elenco del file <code class="inline">data/luoghi.json</code> su GitHub, prima della parentesi quadra finale <code class="inline">]</code>.</p>
       <textarea id="generated-code" readonly style="width:100%; min-height:150px; font-family:var(--mono); font-size:0.82rem; padding:0.8rem; border:1px solid var(--border); border-radius:8px; background:var(--surface);"></textarea>
       <button type="button" class="submit" id="copy-btn" style="margin-top:0.8rem; background:var(--ink-soft);">Copia negli appunti</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="list-modal" hidden>
+  <div class="modal-box detail-box">
+    <button type="button" class="lightbox-close detail-close" id="list-modal-close-btn">✕</button>
+    <div class="detail-inner">
+      <h3>Lista escursioni</h3>
+      <p class="hint">Filtra e ordina tutte le escursioni salvate. Clicca un'intestazione di colonna per ordinare, clicca una riga per aprirne la scheda.</p>
+      <div class="list-modal-controls">
+        <select id="list-filter-regione"><option value="tutte">Tutte le regioni</option></select>
+        <select id="list-filter-difficolta">
+          <option value="tutte">Tutte le difficoltà</option>
+          <option value="Facile">Facile</option>
+          <option value="Media">Media</option>
+          <option value="Difficile">Difficile</option>
+        </select>
+        <label class="list-checkbox"><input type="checkbox" id="list-filter-gpx"> Solo con traccia GPX</label>
+        <input type="search" id="list-filter-q" placeholder="Cerca per nome o comune…">
+        <span class="count-label" id="list-result-count"></span>
+      </div>
+      <div class="list-table-wrap">
+        <table class="list-table" id="list-table">
+          <thead>
+            <tr>
+              <th data-sort="nome">Nome</th>
+              <th data-sort="comune">Comune</th>
+              <th data-sort="regione">Regione</th>
+              <th data-sort="difficolta">Difficoltà</th>
+              <th data-sort="durata">Durata</th>
+              <th data-sort="dislivelloNum">Dislivello</th>
+              <th data-sort="rifugi">Rifugi</th>
+              <th>GPX</th>
+            </tr>
+          </thead>
+          <tbody id="list-table-body"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -1018,6 +1126,21 @@ function createItalyMap(containerId){
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; OpenStreetMap",maxZoom:18}).addTo(map);
   return map;
 }
+function createGenericMap(containerId){
+  const map = L.map(containerId,{scrollWheelZoom:false}).setView([50,0],2);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; OpenStreetMap",maxZoom:18}).addTo(map);
+  return map;
+}
+function fitMapToItems(map, items){
+  const points = [];
+  items.forEach(it=>{
+    if(typeof it.lat === "number" && typeof it.lng === "number") points.push([it.lat, it.lng]);
+    if(it.traccia) it.traccia.forEach(p => points.push(p));
+  });
+  if(points.length > 0){
+    map.fitBounds(L.latLngBounds(points), { padding: [24,24] });
+  }
+}
 function makeIcon(tipo){
   return L.divIcon({className:"",html:`<div style="background:${TIPO_COLOR[tipo]||"#555"};width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)"></div>`,iconSize:[14,14],iconAnchor:[7,7]});
 }
@@ -1070,13 +1193,14 @@ function extraInfoHtml(it){
   return "";
 }
 
-function renderCard(it){
+function renderCard(it, opts = {}){
   const card=document.createElement("div");
   card.className=`card t-${it.tipo}`;
   const extraInfo = extraInfoHtml(it);
   const photosHtml = (it.foto && it.foto.length)
     ? `<div class="card-photos">${it.foto.map((url,i)=>`<img src="${escapeAttr(url)}" alt="Foto ${i+1} di ${escapeAttr(it.nome)}" data-idx="${i}">`).join("")}</div>`
     : "";
+  const badgeHtml = opts.showBadge ? `<span class="badge ${it.tipo}">${TIPO_LABEL[it.tipo] || it.tipo}</span>` : "";
   card.innerHTML=`<div class="card-top">
       <h3>${escapeHtml(it.nome)}</h3>
       <div class="card-top-actions">
@@ -1084,6 +1208,7 @@ function renderCard(it){
         <button type="button" class="remove-btn" title="Rimuovi voce" data-id="${escapeHtml(it.id||"")}">✕</button>
       </div>
     </div>
+    ${badgeHtml}
     <div class="luogo">${escapeHtml(it.comune||"")}${it.comune?" · ":""}${escapeHtml(it.regione)}</div>
     ${it.descrizione ? `<p>${escapeHtml(it.descrizione)}</p>` : ""}
     ${extraInfo}
@@ -1284,9 +1409,10 @@ function downloadGpx(it){
   document.body.removeChild(a);
   setTimeout(()=> URL.revokeObjectURL(url), 2000);
 }
-function renderListByRegion(container, items, emptyMessage){
+function renderListByRegion(container, items, emptyMessageOrOpts){
+  const opts = typeof emptyMessageOrOpts === "string" ? { emptyMessage: emptyMessageOrOpts } : (emptyMessageOrOpts || {});
   container.innerHTML="";
-  if(items.length===0){ container.innerHTML=`<div class="empty-state">${emptyMessage}</div>`; return; }
+  if(items.length===0){ container.innerHTML=`<div class="empty-state">${opts.emptyMessage || ""}</div>`; return; }
   const byRegione=groupByRegione(items);
   Object.keys(byRegione).sort().forEach(regione=>{
     const list=byRegione[regione];
@@ -1297,7 +1423,7 @@ function renderListByRegion(container, items, emptyMessage){
     summary.innerHTML=`${escapeHtml(regione)} <span class="region-count">${list.length}</span>`;
     details.appendChild(summary);
     const cards=document.createElement("div"); cards.className="cards";
-    list.forEach(it=>cards.appendChild(renderCard(it)));
+    list.forEach(it=>cards.appendChild(renderCard(it, { showBadge: !!opts.showBadge })));
     details.appendChild(cards);
     container.appendChild(details);
   });
@@ -1312,6 +1438,7 @@ document.querySelectorAll(".section-view").forEach(view => {
       <p class="eyebrow ${view.dataset.color}">${view.dataset.title.toUpperCase()}</p>
       <h1>${view.dataset.title}</h1>
       <p class="lead">${view.dataset.lead}</p>
+      ${tipo === "escursione" ? `<button type="button" class="btn-list-view" id="btn-lista-escursioni">📋 Lista escursioni</button>` : ""}
     </div>
     <div class="map-wrap"><div id="map-${tipo}"></div></div>
     <section class="controls">
@@ -1324,6 +1451,11 @@ document.querySelectorAll(".section-view").forEach(view => {
   `;
   const sel = view.querySelector(`#filter-regione-${tipo}`);
   REGIONI.forEach(r=>{ const o=document.createElement("option"); o.value=r; o.textContent=r; sel.appendChild(o); });
+
+  if(tipo === "escursione"){
+    const listBtn = view.querySelector("#btn-lista-escursioni");
+    if(listBtn) listBtn.addEventListener("click", openListaEscursioni);
+  }
 
   sectionState[tipo] = { tipo: tipo, items: ITEMS.filter(it=>it.tipo===tipo), mapInit:false, map:null, layer:null };
 
@@ -1345,6 +1477,56 @@ document.querySelectorAll(".section-view").forEach(view => {
   document.getElementById(`filter-regione-${tipo}`).addEventListener("change", render);
   document.getElementById(`filter-q-${tipo}`).addEventListener("input", render);
   sectionState[tipo].render = render;
+});
+
+// --- costruzione dinamica delle viste "viaggio" (mix di tipi, es. Far Öer & Islanda 2026) ---
+const tripState = {};
+document.querySelectorAll(".trip-view").forEach(view => {
+  const viewId = view.id;
+  const viaggio = view.dataset.viaggio;
+  view.innerHTML = `
+    <div class="section-header">
+      <p class="eyebrow ${view.dataset.color}">${view.dataset.title.toUpperCase()}</p>
+      <h1>${view.dataset.title}</h1>
+      <p class="lead">${view.dataset.lead}</p>
+    </div>
+    <div class="map-wrap"><div id="map-${viewId}"></div></div>
+    <section class="controls">
+      <select id="filter-tipo-${viewId}">
+        <option value="tutti">Tutti i tipi</option>
+        <option value="escursione">Escursioni</option>
+        <option value="poi">Punti di interesse</option>
+      </select>
+      <input type="search" id="filter-q-${viewId}" placeholder="Cerca per nome o luogo…">
+      <span class="count-label" id="result-count-${viewId}"></span>
+    </section>
+    <section class="list" id="list-${viewId}"></section>
+    <footer>Attività Mauro — catalogo personale</footer>
+  `;
+
+  tripState[viewId] = { viaggio, items: [], mapInit: false, map: null, layer: null };
+
+  function render(){
+    const tipoFilter = document.getElementById(`filter-tipo-${viewId}`).value;
+    const q = document.getElementById(`filter-q-${viewId}`).value.trim().toLowerCase();
+    const filtered = tripState[viewId].items.filter(it=>{
+      if(tipoFilter !== "tutti" && it.tipo !== tipoFilter) return false;
+      if(q && !(`${it.nome} ${it.comune || ""}`.toLowerCase().includes(q))) return false;
+      return true;
+    });
+    if(tripState[viewId].map){
+      tripState[viewId].map.removeLayer(tripState[viewId].layer);
+      tripState[viewId].layer = addMarkers(tripState[viewId].map, filtered);
+    }
+    document.getElementById(`result-count-${viewId}`).textContent = `${filtered.length} voc${filtered.length === 1 ? "e" : "i"}`;
+    renderListByRegion(document.getElementById(`list-${viewId}`), filtered, {
+      showBadge: true,
+      emptyMessage: "Nessuna voce per questo viaggio con questi filtri."
+    });
+  }
+  document.getElementById(`filter-tipo-${viewId}`).addEventListener("change", render);
+  document.getElementById(`filter-q-${viewId}`).addEventListener("input", render);
+  tripState[viewId].render = render;
 });
 
 // --- home ---
@@ -1378,6 +1560,10 @@ function refreshAllViews(){
   refreshHomeMap();
   Object.values(sectionState).forEach(st=>{
     st.items = ITEMS.filter(it=>it.tipo===st.tipo);
+    if(st.mapInit) st.render();
+  });
+  Object.values(tripState).forEach(st=>{
+    st.items = ITEMS.filter(it=>it.viaggio===st.viaggio);
     if(st.mapInit) st.render();
   });
   if(!document.getElementById("view-foto").hidden) renderGallery();
@@ -1416,8 +1602,8 @@ function applyLocalPhotos(id, urls){
 // --- router a pagina singola ---
 function navigate(viewName){
   document.querySelectorAll(".view").forEach(v=> v.hidden = (v.id !== "view-"+viewName));
-  document.querySelectorAll(".nav-links a").forEach(a=> a.classList.remove("active","t-escursione","t-moto","t-poi","t-foto"));
-  const colorMap = {escursioni:"t-escursione", motogiri:"t-moto", poi:"t-poi", foto:"t-foto"};
+  document.querySelectorAll(".nav-links a").forEach(a=> a.classList.remove("active","t-escursione","t-moto","t-poi","t-foto","t-viaggio"));
+  const colorMap = {escursioni:"t-escursione", motogiri:"t-moto", poi:"t-poi", foto:"t-foto", "viaggio-faroe-islanda":"t-viaggio"};
   if(colorMap[viewName]){
     const link = document.querySelector(`.nav-links a[data-view="${viewName}"]`);
     if(link) link.classList.add("active", colorMap[viewName]);
@@ -1435,6 +1621,23 @@ function navigate(viewName){
     } else {
       st.render();
       setTimeout(()=>st.map.invalidateSize(), 50);
+    }
+  }
+  if(viewName.startsWith("viaggio-")){
+    const viewId = "view-" + viewName;
+    const st = tripState[viewId];
+    if(st){
+      st.items = ITEMS.filter(it => it.viaggio === st.viaggio);
+      if(!st.mapInit){
+        st.map = createGenericMap(`map-${viewId}`);
+        st.layer = addMarkers(st.map, st.items);
+        fitMapToItems(st.map, st.items);
+        st.mapInit = true;
+        st.render();
+      } else {
+        st.render();
+        setTimeout(()=>st.map.invalidateSize(), 50);
+      }
     }
   }
   if(viewName==="foto"){
@@ -1486,7 +1689,9 @@ comuneInput.addEventListener("input", ()=>{
 
 async function fetchComuneSuggestions(q){
   try {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=it&limit=6&q=${encodeURIComponent(q)}`;
+    const isTrip = document.getElementById("f-viaggio").value !== "";
+    const countryParam = isTrip ? "" : "&countrycodes=it";
+    const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1${countryParam}&limit=6&q=${encodeURIComponent(q)}`;
     const res = await fetch(url, { headers: { "Accept-Language": "it" } });
     const results = await res.json();
     renderComuneSuggestions(results);
@@ -1515,9 +1720,17 @@ function selectComune(r){
 
   setPickedLocation(parseFloat(r.lat), parseFloat(r.lon));
 
-  const stateText = (addr.state || "").toLowerCase();
-  const match = REGIONI.find(reg => stateText.includes(reg.toLowerCase().split("-")[0]));
-  if(match) document.getElementById("f-regione").value = match;
+  const isTrip = document.getElementById("f-viaggio").value !== "";
+  if(isTrip){
+    const area = addr.country || addr.state || "";
+    if(area && !document.getElementById("f-regione-libera").value.trim()){
+      document.getElementById("f-regione-libera").value = area;
+    }
+  } else {
+    const stateText = (addr.state || "").toLowerCase();
+    const match = REGIONI.find(reg => stateText.includes(reg.toLowerCase().split("-")[0]));
+    if(match) document.getElementById("f-regione").value = match;
+  }
 }
 
 document.addEventListener("click", (e)=>{
@@ -1745,6 +1958,9 @@ function resetFormToCreateMode(){
   document.getElementById("moto-days-container").innerHTML = "";
   document.getElementById("field-descrizione").hidden = false;
   document.getElementById("field-difficolta-durata").hidden = false;
+  document.getElementById("field-regione-italia").hidden = false;
+  document.getElementById("field-regione-libera").hidden = true;
+  document.getElementById("f-regione").required = true;
   document.getElementById("generated-wrap").style.display = "none";
   parsedTraccia = null;
   document.getElementById("gpx-preview-wrap").style.display = "none";
@@ -1768,13 +1984,20 @@ function openEditForm(it){
   document.getElementById("f-tipo").dispatchEvent(new Event("change"));
   document.getElementById("f-nome").value = it.nome || "";
   document.getElementById("f-comune").value = it.comune || "";
-  document.getElementById("f-regione").value = it.regione || "";
   document.getElementById("f-descrizione").value = it.descrizione || "";
   document.getElementById("f-difficolta").value = it.difficolta || "—";
   document.getElementById("f-durata").value = it.durata || "";
   document.getElementById("f-link").value = it.link || "";
   document.getElementById("f-dislivello").value = it.dislivello || "";
   document.getElementById("f-rifugi").value = it.rifugi || "";
+
+  document.getElementById("f-viaggio").value = it.viaggio || "";
+  document.getElementById("f-viaggio").dispatchEvent(new Event("change"));
+  if(it.viaggio){
+    document.getElementById("f-regione-libera").value = it.regione || "";
+  } else {
+    document.getElementById("f-regione").value = it.regione || "";
+  }
 
   if(it.tipo === "moto"){
     const count = (it.giorni && it.giorni.length) ? Math.min(it.giorni.length, 3) : 1;
@@ -1836,6 +2059,13 @@ document.getElementById("f-tipo").addEventListener("change", (e)=>{
   if(isMoto && document.getElementById("moto-days-container").children.length === 0){
     renderMotoDayBlocks(parseInt(document.getElementById("f-giorni-count").value, 10));
   }
+});
+
+document.getElementById("f-viaggio").addEventListener("change", (e)=>{
+  const isTrip = e.target.value !== "";
+  document.getElementById("field-regione-italia").hidden = isTrip;
+  document.getElementById("field-regione-libera").hidden = !isTrip;
+  document.getElementById("f-regione").required = !isTrip;
 });
 
 // --- motogiri: blocchi giorno per giorno ---
@@ -1996,16 +2226,18 @@ document.getElementById("add-form").addEventListener("submit", async e=>{
     entryId = `${slug}-${Date.now().toString(36)}`;
   }
 
+  const viaggio = document.getElementById("f-viaggio").value;
   const entry = {
     id: entryId,
     tipo: tipo,
     nome: document.getElementById("f-nome").value,
-    regione: document.getElementById("f-regione").value,
+    regione: viaggio ? document.getElementById("f-regione-libera").value : document.getElementById("f-regione").value,
     comune: document.getElementById("f-comune").value,
     lat: pickedLat,
     lng: pickedLng,
     link: document.getElementById("f-link").value
   };
+  if(viaggio) entry.viaggio = viaggio;
 
   if(tipo !== "poi"){
     entry.descrizione = document.getElementById("f-descrizione").value;
@@ -2095,6 +2327,107 @@ document.getElementById("copy-btn").addEventListener("click", ()=>{
 
 // --- rimozione voce (automatica via API, con soluzione di riserva manuale) ---
 let itemPendingRemoval = null;
+
+// --- Lista escursioni: vista a tutto schermo con filtri e ordinamento ---
+let listSortKey = "nome";
+let listSortDir = 1;
+let listRegioniPopulated = false;
+
+function parseDislivelloNum(str){
+  if(!str) return null;
+  const m = String(str).match(/(\d+(?:[.,]\d+)?)/);
+  return m ? parseFloat(m[1].replace(",", ".")) : null;
+}
+
+function openListaEscursioni(){
+  if(!listRegioniPopulated){
+    const sel = document.getElementById("list-filter-regione");
+    const regioniPresenti = Array.from(new Set(ITEMS.filter(it=>it.tipo==="escursione").map(it=>it.regione))).sort();
+    regioniPresenti.forEach(r=>{ const o=document.createElement("option"); o.value=r; o.textContent=r; sel.appendChild(o); });
+    listRegioniPopulated = true;
+  }
+  renderListaEscursioni();
+  document.getElementById("list-modal").hidden = false;
+}
+function closeListaEscursioni(){ document.getElementById("list-modal").hidden = true; }
+
+function renderListaEscursioni(){
+  const regione = document.getElementById("list-filter-regione").value;
+  const difficolta = document.getElementById("list-filter-difficolta").value;
+  const onlyGpx = document.getElementById("list-filter-gpx").checked;
+  const q = document.getElementById("list-filter-q").value.trim().toLowerCase();
+
+  let items = ITEMS.filter(it => it.tipo === "escursione");
+  if(regione !== "tutte") items = items.filter(it => it.regione === regione);
+  if(difficolta !== "tutte") items = items.filter(it => it.difficolta === difficolta);
+  if(onlyGpx) items = items.filter(it => it.traccia && it.traccia.length > 1);
+  if(q) items = items.filter(it => `${it.nome} ${it.comune || ""}`.toLowerCase().includes(q));
+
+  items = items.map(it => Object.assign({}, it, { dislivelloNum: parseDislivelloNum(it.dislivello) }));
+
+  const dir = listSortDir;
+  items.sort((a, b) => {
+    if(listSortKey === "dislivelloNum"){
+      const va = a.dislivelloNum === null ? -Infinity : a.dislivelloNum;
+      const vb = b.dislivelloNum === null ? -Infinity : b.dislivelloNum;
+      return (va - vb) * dir;
+    }
+    const va = (a[listSortKey] || "").toString().toLowerCase();
+    const vb = (b[listSortKey] || "").toString().toLowerCase();
+    return va.localeCompare(vb) * dir;
+  });
+
+  document.getElementById("list-result-count").textContent = `${items.length} voc${items.length === 1 ? "e" : "i"}`;
+
+  const tbody = document.getElementById("list-table-body");
+  tbody.innerHTML = "";
+  if(items.length === 0){
+    tbody.innerHTML = `<tr><td colspan="8" class="empty-state">Nessuna escursione trovata con questi filtri.</td></tr>`;
+    return;
+  }
+  items.forEach(it => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${escapeHtml(it.nome)}</td>
+      <td>${escapeHtml(it.comune || "—")}</td>
+      <td>${escapeHtml(it.regione || "—")}</td>
+      <td>${escapeHtml(it.difficolta && it.difficolta !== "—" ? it.difficolta : "—")}</td>
+      <td>${escapeHtml(it.durata || "—")}</td>
+      <td>${escapeHtml(it.dislivello || "—")}</td>
+      <td>${escapeHtml(it.rifugi || "—")}</td>
+      <td>${it.traccia && it.traccia.length > 1 ? "✓" : "—"}</td>
+    `;
+    tr.addEventListener("click", () => { closeListaEscursioni(); openDetailModal(it); });
+    tbody.appendChild(tr);
+  });
+}
+
+function updateListSortIndicators(){
+  document.querySelectorAll("#list-table thead th[data-sort]").forEach(th => {
+    th.classList.remove("sorted-asc", "sorted-desc");
+    if(th.dataset.sort === listSortKey) th.classList.add(listSortDir === 1 ? "sorted-asc" : "sorted-desc");
+  });
+}
+
+document.querySelectorAll("#list-table thead th[data-sort]").forEach(th => {
+  th.addEventListener("click", () => {
+    const key = th.dataset.sort;
+    if(listSortKey === key) listSortDir *= -1;
+    else { listSortKey = key; listSortDir = 1; }
+    renderListaEscursioni();
+    updateListSortIndicators();
+  });
+});
+updateListSortIndicators();
+
+["list-filter-regione", "list-filter-difficolta", "list-filter-gpx"].forEach(id => {
+  document.getElementById(id).addEventListener("change", renderListaEscursioni);
+});
+document.getElementById("list-filter-q").addEventListener("input", renderListaEscursioni);
+document.getElementById("list-modal-close-btn").addEventListener("click", closeListaEscursioni);
+document.getElementById("list-modal").addEventListener("click", (e) => {
+  if(e.target.id === "list-modal") closeListaEscursioni();
+});
 
 function openRemoveModal(it){
   itemPendingRemoval = it;
