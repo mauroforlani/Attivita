@@ -954,7 +954,7 @@ button.submit:hover { background: #2b2f38; }
           <option value="">— Nessuno —</option>
           <option value="Isole Far Öer e Islanda 2026">Isole Far Öer e Islanda 2026</option>
         </select>
-        <p class="desc">Se scegli un viaggio, la voce comparrà anche nel suo tab dedicato, oltre alla sezione normale. Il paese si sceglie qui sopra, indipendentemente dal viaggio.</p>
+        <p class="desc">Se scegli un viaggio, la voce comparrà solo nel suo tab dedicato, non nella sezione generale (Escursioni/Motogiri/POI). Il paese si sceglie qui sopra, indipendentemente dal viaggio.</p>
       </div>
       <div class="field">
         <label for="f-tipo">Sezione</label>
@@ -1168,7 +1168,15 @@ const TIPO_COLOR = { escursione: "#15803d", moto: "#c2410c", poi: "#1d4ed8" };
 const REGIONI = ["Abruzzo","Basilicata","Calabria","Campania","Emilia-Romagna","Friuli-Venezia Giulia","Lazio","Liguria","Lombardia","Marche","Molise","Piemonte","Puglia","Sardegna","Sicilia","Toscana","Trentino-Alto Adige","Umbria","Valle d'Aosta","Veneto"];
 const PAESI = ["Italia","Francia","Svizzera","Austria","Slovenia","Germania","Spagna","Portogallo","Croazia","Grecia","Regno Unito","Irlanda","Belgio","Paesi Bassi","Norvegia","Svezia","Danimarca","Islanda","Isole Fær Øer","Polonia","Repubblica Ceca","Ungheria","Romania","Altro"];
 const PAESE_CODES = { "Italia":"it","Francia":"fr","Svizzera":"ch","Austria":"at","Slovenia":"si","Germania":"de","Spagna":"es","Portogallo":"pt","Croazia":"hr","Grecia":"gr","Regno Unito":"gb","Irlanda":"ie","Belgio":"be","Paesi Bassi":"nl","Norvegia":"no","Svezia":"se","Danimarca":"dk","Islanda":"is","Isole Fær Øer":"fo","Polonia":"pl","Repubblica Ceca":"cz","Ungheria":"hu","Romania":"ro" };
-function getPaese(it){ return (it && it.paese) ? it.paese : "Italia"; }
+function getPaese(it){
+  if(it && it.paese) return it.paese;
+  // voci storiche di un viaggio dedicato, create prima dell'introduzione del campo "paese":
+  // il testo libero già inserito in "regione" indicava il paese/area (es. "Islanda"), quindi
+  // lo usiamo come paese di fallback invece di considerarle erroneamente parte dell'Italia
+  if(it && it.viaggio && it.regione) return it.regione;
+  return "Italia";
+}
+function isTripItem(it){ return !!(it && it.viaggio); }
 
 function escapeHtml(str){return String(str).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
 function escapeAttr(str){ return escapeHtml(str); }
@@ -1534,7 +1542,7 @@ document.querySelectorAll(".section-view").forEach(view => {
     if(listBtn) listBtn.addEventListener("click", openListaEscursioni);
   }
 
-  sectionState[tipo] = { tipo: tipo, items: ITEMS.filter(it=>it.tipo===tipo), mapInit:false, map:null, layer:null };
+  sectionState[tipo] = { tipo: tipo, items: ITEMS.filter(it=>it.tipo===tipo && !isTripItem(it)), mapInit:false, map:null, layer:null };
 
   // popola il filtro "Paese" in base ai paesi effettivamente presenti tra le voci di questa sezione,
   // mantenendo la selezione attuale se ancora valida
@@ -1652,7 +1660,7 @@ let homeLayer = null;
 
 function updateHomeCounts(){
   const counts = {escursione:0, moto:0, poi:0};
-  ITEMS.forEach(it=>{ if(counts[it.tipo]!==undefined) counts[it.tipo]++; });
+  ITEMS.forEach(it=>{ if(!isTripItem(it) && counts[it.tipo]!==undefined) counts[it.tipo]++; });
   document.getElementById("count-escursione").textContent = `${counts.escursione} voci`;
   document.getElementById("count-moto").textContent = `${counts.moto} voci`;
   document.getElementById("count-poi").textContent = `${counts.poi} voci`;
@@ -1660,14 +1668,14 @@ function updateHomeCounts(){
 
 function initHomeMap(){
   homeMap = createItalyMap("map-home");
-  homeLayer = addMarkers(homeMap, ITEMS);
+  homeLayer = addMarkers(homeMap, ITEMS.filter(it=>!isTripItem(it)));
   updateHomeCounts();
 }
 
 function refreshHomeMap(){
   if(!homeMapInit) return;
   homeMap.removeLayer(homeLayer);
-  homeLayer = addMarkers(homeMap, ITEMS);
+  homeLayer = addMarkers(homeMap, ITEMS.filter(it=>!isTripItem(it)));
   updateHomeCounts();
 }
 
@@ -1675,7 +1683,7 @@ function refreshHomeMap(){
 function refreshAllViews(){
   refreshHomeMap();
   Object.values(sectionState).forEach(st=>{
-    st.items = ITEMS.filter(it=>it.tipo===st.tipo);
+    st.items = ITEMS.filter(it=>it.tipo===st.tipo && !isTripItem(it));
     st.refreshFilters();
     if(st.mapInit) st.render();
   });
@@ -1729,7 +1737,7 @@ function navigate(viewName){
   if(["escursioni","motogiri","poi"].includes(viewName)){
     const tipo = {escursioni:"escursione", motogiri:"moto", poi:"poi"}[viewName];
     const st = sectionState[tipo];
-    st.items = ITEMS.filter(it => it.tipo === tipo);
+    st.items = ITEMS.filter(it => it.tipo === tipo && !isTripItem(it));
     st.refreshFilters();
     if(!st.mapInit){
       st.map = createItalyMap(`map-${tipo}`);
@@ -2494,7 +2502,7 @@ function parseDislivelloNum(str){
 function openListaEscursioni(){
   const paeseSel = document.getElementById("list-filter-paese");
   const paeseCurrent = paeseSel.value || "tutti";
-  const paesiPresenti = Array.from(new Set(ITEMS.filter(it=>it.tipo==="escursione").map(it=>getPaese(it))));
+  const paesiPresenti = Array.from(new Set(ITEMS.filter(it=>it.tipo==="escursione" && !isTripItem(it)).map(it=>getPaese(it))));
   paesiPresenti.sort((a,b) => a === "Italia" ? -1 : b === "Italia" ? 1 : a.localeCompare(b));
   paeseSel.innerHTML = '<option value="tutti">Tutti i paesi</option>';
   paesiPresenti.forEach(p=>{ const o=document.createElement("option"); o.value=p; o.textContent=p; paeseSel.appendChild(o); });
@@ -2503,7 +2511,7 @@ function openListaEscursioni(){
   const regSel = document.getElementById("list-filter-regione");
   const regCurrent = regSel.value || "tutte";
   const regioniPresenti = Array.from(new Set(
-    ITEMS.filter(it=>it.tipo==="escursione" && (paeseSel.value==="tutti" || getPaese(it)===paeseSel.value)).map(it=>it.regione)
+    ITEMS.filter(it=>it.tipo==="escursione" && !isTripItem(it) && (paeseSel.value==="tutti" || getPaese(it)===paeseSel.value)).map(it=>it.regione)
   )).sort();
   regSel.innerHTML = '<option value="tutte">Tutte le regioni</option>';
   regioniPresenti.forEach(r=>{ const o=document.createElement("option"); o.value=r; o.textContent=r; regSel.appendChild(o); });
@@ -2521,7 +2529,7 @@ function renderListaEscursioni(){
   const onlyGpx = document.getElementById("list-filter-gpx").checked;
   const q = document.getElementById("list-filter-q").value.trim().toLowerCase();
 
-  let items = ITEMS.filter(it => it.tipo === "escursione");
+  let items = ITEMS.filter(it => it.tipo === "escursione" && !isTripItem(it));
   if(paese !== "tutti") items = items.filter(it => getPaese(it) === paese);
   if(regione !== "tutte") items = items.filter(it => it.regione === regione);
   if(difficolta !== "tutte") items = items.filter(it => it.difficolta === difficolta);
@@ -2593,7 +2601,7 @@ document.getElementById("list-filter-paese").addEventListener("change", () => {
   const regSel = document.getElementById("list-filter-regione");
   const paeseVal = document.getElementById("list-filter-paese").value;
   const regioniPresenti = Array.from(new Set(
-    ITEMS.filter(it=>it.tipo==="escursione" && (paeseVal==="tutti" || getPaese(it)===paeseVal)).map(it=>it.regione)
+    ITEMS.filter(it=>it.tipo==="escursione" && !isTripItem(it) && (paeseVal==="tutti" || getPaese(it)===paeseVal)).map(it=>it.regione)
   )).sort();
   const current = regSel.value;
   regSel.innerHTML = '<option value="tutte">Tutte le regioni</option>';
