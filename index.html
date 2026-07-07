@@ -959,7 +959,7 @@ button.submit:hover { background: #2b2f38; }
       <div class="field" id="gpx-field" hidden>
         <label for="f-gpx">Traccia GPX (facoltativa)</label>
         <input type="file" id="f-gpx" accept=".gpx">
-        <p class="desc">Carica il file .gpx dell'escursione: verrà mostrato in anteprima qui sotto e la traccia comparirà sulla mappa della sezione Escursioni. Dislivello e posizione di partenza vengono impostati automaticamente dai dati del file (al posto del comune, se presente).</p>
+        <p class="desc">Carica il file .gpx del percorso: verrà mostrato in anteprima qui sotto e la traccia comparirà sulla mappa della sezione. Posizione di partenza (e, per le escursioni, il dislivello) vengono impostati automaticamente dai dati del file, se presenti (al posto del comune, se già inserito).</p>
         <div id="gpx-preview-wrap" style="display:none; margin-top:0.8rem;">
           <div id="gpx-preview-map" style="height:220px; border-radius:8px; border:1px solid var(--border);"></div>
           <p class="desc" id="gpx-preview-info"></p>
@@ -1201,14 +1201,18 @@ function extraInfoHtml(it){
         ${it.traccia && it.traccia.length ? `<span>📍 Traccia GPX disponibile</span>` : ""}
       </div>`;
   }
-  if(it.tipo === "moto" && it.giorni && it.giorni.length){
-    const g = it.giorni;
-    const bits = [`<span>🗺 ${g.length} ${g.length > 1 ? "giorni" : "giorno"}</span>`];
-    if(g.length === 1){
-      if(g[0].lunghezza) bits.push(`<span>${escapeHtml(g[0].lunghezza)}</span>`);
-      if(g[0].durata) bits.push(`<span>${escapeHtml(g[0].durata)}</span>`);
+  if(it.tipo === "moto"){
+    const bits = [];
+    if(it.giorni && it.giorni.length){
+      const g = it.giorni;
+      bits.push(`<span>🗺 ${g.length} ${g.length > 1 ? "giorni" : "giorno"}</span>`);
+      if(g.length === 1){
+        if(g[0].lunghezza) bits.push(`<span>${escapeHtml(g[0].lunghezza)}</span>`);
+        if(g[0].durata) bits.push(`<span>${escapeHtml(g[0].durata)}</span>`);
+      }
     }
-    return `<div class="extra-info">${bits.join("")}</div>`;
+    if(it.traccia && it.traccia.length) bits.push(`<span>📍 Traccia GPX disponibile</span>`);
+    return bits.length ? `<div class="extra-info">${bits.join("")}</div>` : "";
   }
   return "";
 }
@@ -2140,7 +2144,7 @@ document.getElementById("f-tipo").addEventListener("change", (e)=>{
   const isPoi = tipo === "poi";
 
   document.getElementById("escursione-fields").hidden = !isEscursione;
-  document.getElementById("gpx-field").hidden = !isEscursione;
+  document.getElementById("gpx-field").hidden = !(isEscursione || isMoto);
   document.getElementById("moto-fields").hidden = !isMoto;
 
   document.getElementById("field-descrizione").hidden = isPoi;
@@ -2343,15 +2347,18 @@ document.getElementById("add-form").addEventListener("submit", async e=>{
     const rifugi = document.getElementById("f-rifugi").value.trim();
     if(dislivello) entry.dislivello = dislivello;
     if(rifugi) entry.rifugi = rifugi;
+  } else if(tipo === "moto"){
+    entry.giorni = collectMotoDays();
+  }
+  // per "poi" non salviamo altro: solo nome, luogo (comune/regione/coordinate) e foto
+
+  if(tipo === "escursione" || tipo === "moto"){
     if(parsedTraccia){
       entry.traccia = parsedTraccia; // nuova traccia caricata: sostituisce quella precedente
     } else if(isEditing && editingOriginalItem && editingOriginalItem.traccia){
       entry.traccia = editingOriginalItem.traccia; // nessuna nuova traccia: mantiene quella esistente
     }
-  } else if(tipo === "moto"){
-    entry.giorni = collectMotoDays();
   }
-  // per "poi" non salviamo altro: solo nome, luogo (comune/regione/coordinate) e foto
 
   // foto esistenti (in modifica) meno quelle segnate per la rimozione
   let keptPhotos = [];
