@@ -2,11 +2,21 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <title>Attività Mauro — Escursioni, motogiri e punti di interesse</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+
+<!-- Stile "app" su iPhone: aggiunta a schermata Home, nessuna barra Safari, icona dedicata -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Attività Mauro">
+<meta name="theme-color" content="#13151a">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Attivit%C3%A0%20Mauro%22,%22short_name%22:%22Attivit%C3%A0%20Mauro%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23ffffff%22,%22theme_color%22:%22%2313151a%22}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -46,7 +56,11 @@ body {
   font-family: var(--body);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: contain;
 }
+
+a, button { -webkit-tap-highlight-color: transparent; }
 
 a { color: inherit; }
 h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.01em; }
@@ -264,6 +278,28 @@ h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.01em; }
   max-width: 1080px;
   margin: 1rem auto 4rem;
   padding: 0 1.5rem;
+}
+.paese-group + .paese-group {
+  margin-top: 1.8rem;
+  padding-top: 1.6rem;
+  border-top: 2px solid var(--border);
+}
+.paese-group-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 0.3rem;
+}
+.paese-group-header .paese-name {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+}
+.paese-group-header .paese-count {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--ink-soft);
 }
 details.region {
   border-bottom: 1px solid var(--border);
@@ -1434,23 +1470,40 @@ function downloadGpx(it){
   document.body.removeChild(a);
   setTimeout(()=> URL.revokeObjectURL(url), 2000);
 }
+function groupByPaese(items){
+  const out={}; items.forEach(it=>{ const p=getPaese(it); (out[p]=out[p]||[]).push(it); }); return out;
+}
 function renderListByRegion(container, items, emptyMessageOrOpts){
   const opts = typeof emptyMessageOrOpts === "string" ? { emptyMessage: emptyMessageOrOpts } : (emptyMessageOrOpts || {});
   container.innerHTML="";
   if(items.length===0){ container.innerHTML=`<div class="empty-state">${opts.emptyMessage || ""}</div>`; return; }
-  const byRegione=groupByRegione(items);
-  Object.keys(byRegione).sort().forEach(regione=>{
-    const list=byRegione[regione];
-    const details=document.createElement("details");
-    details.className="region";
-    details.open = Object.keys(byRegione).length<=3;
-    const summary=document.createElement("summary");
-    summary.innerHTML=`${escapeHtml(regione)} <span class="region-count">${list.length}</span>`;
-    details.appendChild(summary);
-    const cards=document.createElement("div"); cards.className="cards";
-    list.forEach(it=>cards.appendChild(renderCard(it, { showBadge: !!opts.showBadge })));
-    details.appendChild(cards);
-    container.appendChild(details);
+  const byPaese=groupByPaese(items);
+  const paesi=Object.keys(byPaese).sort((a,b)=> a==="Italia" ? -1 : b==="Italia" ? 1 : a.localeCompare(b));
+  paesi.forEach(paese=>{
+    const paeseItems=byPaese[paese];
+    const paeseWrap=document.createElement("div");
+    paeseWrap.className="paese-group";
+    if(paesi.length>1){
+      const header=document.createElement("div");
+      header.className="paese-group-header";
+      header.innerHTML=`<span class="paese-name">${escapeHtml(paese)}</span><span class="paese-count">${paeseItems.length}</span>`;
+      paeseWrap.appendChild(header);
+    }
+    const byRegione=groupByRegione(paeseItems);
+    Object.keys(byRegione).sort().forEach(regione=>{
+      const list=byRegione[regione];
+      const details=document.createElement("details");
+      details.className="region";
+      details.open = Object.keys(byRegione).length<=3;
+      const summary=document.createElement("summary");
+      summary.innerHTML=`${escapeHtml(regione)} <span class="region-count">${list.length}</span>`;
+      details.appendChild(summary);
+      const cards=document.createElement("div"); cards.className="cards";
+      list.forEach(it=>cards.appendChild(renderCard(it, { showBadge: !!opts.showBadge })));
+      details.appendChild(cards);
+      paeseWrap.appendChild(details);
+    });
+    container.appendChild(paeseWrap);
   });
 }
 
