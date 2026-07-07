@@ -5353,5 +5353,28 @@
       "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/maderhorn-mrafhbie-1-mrafhbla.jpg",
       "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/maderhorn-mrafhbie-2-mrafhd2q.jpg"
     ]
+  },
+  {
+    "id": "colle-del-gran-san-bernardo-passo-del-sempione-mrakedf0",
+    "tipo": "moto",
+    "nome": "Colle del Gran San Bernardo, Passo del Sempione",
+    "paese": "Italia",
+    "regione": "Valle d'Aosta",
+    "comune": "Courmayeur",
+    "lat": 45.8316548,
+    "lng": 6.9461565,
+    "link": "",
+    "descrizione": "Motogiro passando dal Colle del Gran San Bernardo e dal Passo del Sempione",
+    "giorni": [
+      {
+        "lunghezza": "390",
+        "durata": "6h",
+        "tappa": "",
+        "note": ""
+      }
+    ],
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/colle-del-gran-san-bernardo-passo-del-sempione-mrakedf0-1-mrakedgv.jpg"
+    ]
   }
 ]
