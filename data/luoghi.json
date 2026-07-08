@@ -4440,13 +4440,17 @@
   {
     "id": "faroe-symbol-of-collaboration",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Symbol of Collaboration",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Skopun, Sandoy",
-    "lat": 61.8983,
-    "lng": -6.8781,
-    "link": ""
+    "comune": "Sandur",
+    "lat": 61.8348502,
+    "lng": -6.8167192,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-symbol-of-collaboration-1-mrccx1zl.jpg"
+    ]
   },
   {
     "id": "islanda-sigoldufoss",
