@@ -4366,13 +4366,17 @@
   {
     "id": "faroe-klovningur",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Klovningur",
+    "paese": "Isole Faroe",
     "regione": "Isole Faroe",
-    "comune": "Vágar",
-    "lat": 62.0611,
-    "lng": -7.6222,
-    "link": ""
+    "comune": "Sandavágur",
+    "lat": 62.0544766,
+    "lng": -7.1510714,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-klovningur-1-mrccpqg8.jpg"
+    ]
   },
   {
     "id": "faroe-munkastova-cave",
