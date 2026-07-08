@@ -4381,13 +4381,17 @@
   {
     "id": "faroe-munkastova-cave",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Munkastova Cave",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Sørvágur, Vágar",
-    "lat": 62.0644,
-    "lng": -7.3333,
-    "link": ""
+    "comune": "Sørvágur",
+    "lat": 62.0707453,
+    "lng": -7.3060468,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-munkastova-cave-1-mrccts2w.jpg"
+    ]
   },
   {
     "id": "faroe-nes-vindmollepark",
