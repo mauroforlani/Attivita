@@ -4333,13 +4333,17 @@
   {
     "id": "faroe-kvivik-viewpoint",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Viewpoint over Kvívík",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Kvívík, Streymoy",
-    "lat": 62.1194,
-    "lng": -7.0722,
-    "link": ""
+    "comune": "Stykkið",
+    "lat": 62.1160634,
+    "lng": -7.049687,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-kvivik-viewpoint-1-mrdfoarp.jpg"
+    ]
   },
   {
     "id": "faroe-ww2-fortress-nes",
