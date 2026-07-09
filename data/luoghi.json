@@ -4437,13 +4437,17 @@
   {
     "id": "faroe-grasteinur",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Grásteinur",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Hoyvík, Streymoy",
-    "lat": 62.0333,
-    "lng": -6.7667,
-    "link": ""
+    "comune": "Nólsoy",
+    "lat": 62.011963,
+    "lng": -6.668034,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-grasteinur-1-mrdfqw8a.jpg"
+    ]
   },
   {
     "id": "faroe-symbol-of-collaboration",
