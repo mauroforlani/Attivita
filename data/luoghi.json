@@ -4355,13 +4355,17 @@
   {
     "id": "faroe-skardsafossur",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Skarðsáfossur",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Suðuroy",
-    "lat": 61.55,
-    "lng": -6.82,
-    "link": ""
+    "comune": "Bøur",
+    "lat": 62.087978,
+    "lng": -7.3714549,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-skardsafossur-1-mrdfm0fm.jpg"
+    ]
   },
   {
     "id": "faroe-klovningur",
