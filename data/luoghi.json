@@ -4322,13 +4322,17 @@
   {
     "id": "faroe-vestmanna-grotte",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Vestmanna — Grotte e Stejlt Fjeld (in barca)",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Vestmanna, Streymoy",
-    "lat": 62.155,
-    "lng": -7.17,
-    "link": ""
+    "comune": "Vestmanna",
+    "lat": 62.1551919,
+    "lng": -7.1749746,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-vestmanna-grotte-1-mrdfu7h5.jpg"
+    ]
   },
   {
     "id": "faroe-kvivik-viewpoint",
