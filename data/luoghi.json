@@ -4288,13 +4288,17 @@
   {
     "id": "faroe-svartidalurfoss",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Svartidalurfoss",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Norðoyar",
-    "lat": 62.19,
-    "lng": -6.65,
-    "link": ""
+    "comune": "Borðoy",
+    "lat": 62.2637974,
+    "lng": -6.5199602,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-svartidalurfoss-1-mrdhnswl.jpg"
+    ]
   },
   {
     "id": "faroe-saksun-black-sand-beach",
