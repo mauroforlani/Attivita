@@ -4130,16 +4130,20 @@
   {
     "id": "faroe-kallur-lighthouse",
     "tipo": "escursione",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Faro di Kallur",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Trøllanes, Kalsoy",
+    "comune": "Húsar",
+    "lat": 62.2981508,
+    "lng": -6.7429898,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
     "descrizione": "Camminata lungo la cresta erbosa dell'isola di Kalsoy fino al faro di Kallur, uno dei panorami più fotografati delle Faroe. Raggiungibile solo con traghetto da Klaksvík. Comparso nel film di James Bond 'No Time to Die'.",
-    "lat": 62.3236,
-    "lng": -6.7863,
     "difficolta": "Media",
     "durata": "1h30, 4.8 km",
-    "link": ""
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-kallur-lighthouse-1-mrdhifz9.jpg"
+    ]
   },
   {
     "id": "faroe-skardsbygd",
