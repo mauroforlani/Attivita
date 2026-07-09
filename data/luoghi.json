@@ -4448,13 +4448,17 @@
   {
     "id": "faroe-nes-vindmollepark",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Nes Vindmøllepark",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Nes, Eysturoy",
-    "lat": 62.115,
-    "lng": -6.73,
-    "link": ""
+    "comune": "Æðuvík",
+    "lat": 62.06969,
+    "lng": -6.6936427,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-nes-vindmollepark-1-mrdgtp27.jpg"
+    ]
   },
   {
     "id": "faroe-tyggjara-falls",
