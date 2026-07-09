@@ -4286,13 +4286,17 @@
   {
     "id": "faroe-fossa",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Fossá",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Haldarsvík, Streymoy",
-    "lat": 62.2394,
-    "lng": -7.0989,
-    "link": ""
+    "comune": "Haldórsvík",
+    "lat": 62.2758977,
+    "lng": -7.0940268,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-fossa-1-mrdg0auj.jpg"
+    ]
   },
   {
     "id": "faroe-fuglafjordur-viewpoint",
