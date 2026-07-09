@@ -4181,16 +4181,20 @@
   {
     "id": "faroe-klakkur",
     "tipo": "escursione",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Hiking Klakkur",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Klaksvík, Borðoy",
+    "comune": "Klaksvík",
+    "lat": 62.2254921,
+    "lng": -6.5837755,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
     "descrizione": "Breve salita panoramica sopra Klaksvík, la seconda città delle Faroe. Vista dall'alto sul fiordo e sulle isole circostanti, tra cui Kunoy e Kalsoy.",
-    "lat": 62.2278,
-    "lng": -6.5967,
     "difficolta": "Media",
     "durata": "1h30, 3.5 km",
-    "link": ""
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-klakkur-1-mrdhmhv5.jpg"
+    ]
   },
   {
     "id": "islanda-landmannalaugar-gonguleid",
