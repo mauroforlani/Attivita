@@ -4313,13 +4313,17 @@
   {
     "id": "faroe-fuglafjordur-viewpoint",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Fuglafjørður Viewpoint",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Fuglafjørður, Eysturoy",
-    "lat": 62.2431,
-    "lng": -6.8144,
-    "link": ""
+    "comune": "Fuglafjørður",
+    "lat": 62.2438445,
+    "lng": -6.8133219,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-fuglafjordur-viewpoint-1-mrdgpms1.jpg"
+    ]
   },
   {
     "id": "faroe-langasandur",
