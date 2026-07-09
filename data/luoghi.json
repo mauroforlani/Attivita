@@ -4312,13 +4312,17 @@
   {
     "id": "faroe-langasandur",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Langasandur",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Sandvík, Suðuroy",
-    "lat": 61.6408,
-    "lng": -6.7967,
-    "link": ""
+    "comune": "Langasandur",
+    "lat": 62.2355394,
+    "lng": -7.0541727,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-langasandur-1-mrdg1vbr.jpg"
+    ]
   },
   {
     "id": "faroe-vestmanna-sea-cliffs",
