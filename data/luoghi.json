@@ -4234,13 +4234,17 @@
   {
     "id": "faroe-kluftafossur",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Kluftáfossur",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Saksun, Streymoy",
-    "lat": 62.2833,
-    "lng": -7.2167,
-    "link": ""
+    "comune": "Streymoyar sýsla",
+    "lat": 62.1237192,
+    "lng": -7.0158828,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-kluftafossur-1-mrdfyzka.jpg"
+    ]
   },
   {
     "id": "faroe-gorge-elduvik",
