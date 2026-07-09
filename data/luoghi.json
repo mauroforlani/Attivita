@@ -4502,13 +4502,17 @@
   {
     "id": "faroe-bosdalafossur",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Bøsdalafossur Waterfall",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Miðvágur, Vágar",
-    "lat": 62.0489,
-    "lng": -7.3958,
-    "link": ""
+    "comune": "Sandavágur",
+    "lat": 62.0544766,
+    "lng": -7.1510714,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-bosdalafossur-1-mrdhqsyd.jpg"
+    ]
   },
   {
     "id": "faroe-grasteinur",
