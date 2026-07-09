@@ -4201,13 +4201,17 @@
   {
     "id": "faroe-gjogv",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Gjógv Natural Harbour",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Gjógv, Eysturoy",
-    "lat": 62.3122,
-    "lng": -6.8047,
-    "link": ""
+    "comune": "Gjógv",
+    "lat": 62.3257427,
+    "lng": -6.9430295,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-gjogv-1-mrdgenyx.jpg"
+    ]
   },
   {
     "id": "faroe-risin-og-kellingin",
