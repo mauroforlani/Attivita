@@ -4267,13 +4267,17 @@
   {
     "id": "faroe-saksun-black-sand-beach",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Saksun's Black Sand Beach",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Saksun, Streymoy",
-    "lat": 62.2939,
-    "lng": -7.2078,
-    "link": ""
+    "comune": "Streymoyar sýsla",
+    "lat": 62.1237192,
+    "lng": -7.0158828,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-saksun-black-sand-beach-1-mrdfx3xb.jpg"
+    ]
   },
   {
     "id": "faroe-fossa",
