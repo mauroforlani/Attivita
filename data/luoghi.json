@@ -4415,13 +4415,17 @@
   {
     "id": "faroe-tyggjara-falls",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Tyggjara Falls",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Streymoy",
-    "lat": 62.03,
-    "lng": -6.85,
-    "link": ""
+    "comune": "Kaldbak",
+    "lat": 62.0600805,
+    "lng": -6.8314257,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-tyggjara-falls-1-mrdfsf2i.jpg"
+    ]
   },
   {
     "id": "faroe-bosdalafossur",
