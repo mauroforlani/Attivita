@@ -4212,13 +4212,17 @@
   {
     "id": "faroe-risin-og-kellingin",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Risin og Kellingin",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Eiði, Eysturoy",
-    "lat": 62.2989,
-    "lng": -7.0964,
-    "link": ""
+    "comune": "Eiði",
+    "lat": 62.3234961,
+    "lng": -7.1032188,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-risin-og-kellingin-1-mrdg3xyr.jpg"
+    ]
   },
   {
     "id": "faroe-church-of-kunoy",
