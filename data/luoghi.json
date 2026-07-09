@@ -4311,13 +4311,17 @@
   {
     "id": "faroe-vestmanna-sea-cliffs",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "Vestmanna Sea Cliffs",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Vestmanna, Streymoy",
-    "lat": 62.1531,
-    "lng": -7.1667,
-    "link": ""
+    "comune": "Vestmanna",
+    "lat": 62.1551919,
+    "lng": -7.1749746,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-vestmanna-sea-cliffs-1-mrdfvkby.jpg"
+    ]
   },
   {
     "id": "faroe-vestmanna-grotte",
