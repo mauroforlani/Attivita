@@ -4388,13 +4388,17 @@
   {
     "id": "faroe-ww2-fortress-nes",
     "tipo": "poi",
-    "viaggio": "Isole Far Öer e Islanda 2026",
     "nome": "World War II Fortress in Nes",
+    "paese": "Isole Fær Øer",
     "regione": "Isole Faroe",
-    "comune": "Nes, Eysturoy",
-    "lat": 62.1167,
-    "lng": -6.7333,
-    "link": ""
+    "comune": "Nes",
+    "lat": 62.0778077,
+    "lng": -6.7195272,
+    "link": "",
+    "viaggio": "Isole Far Öer e Islanda 2026",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/faroe-ww2-fortress-nes-1-mrdgrp6a.jpg"
+    ]
   },
   {
     "id": "faroe-skardsafossur",
