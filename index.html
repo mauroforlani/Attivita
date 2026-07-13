@@ -1014,6 +1014,17 @@ button.submit:hover { background: #2b2f38; }
         <div class="field"><label for="f-gara-dislivello">Dislivello</label><input type="text" id="f-gara-dislivello" placeholder="Es. 2500 m D+"></div>
         <div class="field"><label for="f-gara-lunghezza">Lunghezza</label><input type="text" id="f-gara-lunghezza" placeholder="Es. 42 km"></div>
       </div>
+      <div class="row" id="gara-data-fields" hidden>
+        <div class="field">
+          <label for="f-gara-data">Data della gara</label>
+          <input type="date" id="f-gara-data">
+          <p class="desc">Facoltativa: se non conosci ancora la data esatta della prossima edizione, lascia vuoto e compila solo l'anno.</p>
+        </div>
+        <div class="field">
+          <label for="f-gara-anno">Anno / edizione</label>
+          <input type="number" id="f-gara-anno" placeholder="Es. 2026" min="1900" max="2100" step="1">
+        </div>
+      </div>
       <div class="field" id="gara-arrivo-field" hidden>
         <label for="f-arrivo">Luogo di arrivo</label>
         <input type="text" id="f-arrivo" placeholder="Es. Courmayeur">
@@ -1181,6 +1192,9 @@ button.submit:hover { background: #2b2f38; }
    - rifugi: solo per "escursione", testo libero es. "Rifugio Vandelli" (facoltativo)
    - arrivo: solo per "gara", testo libero col luogo di arrivo, se diverso dalla
      partenza indicata in "comune" (facoltativo, gare ad anello possono ometterlo)
+   - data: solo per "gara", data in formato ISO "AAAA-MM-GG" (facoltativa)
+   - anno: solo per "gara", anno/edizione della gara, testo o numero (facoltativo;
+     se non indicato ma è presente "data", viene dedotto automaticamente da quella)
    - traccia: per "escursione", "moto" e "gara", array di coppie [lat, lng] che disegna
      il percorso sulla mappa (facoltativo). Generato automaticamente se
      carichi un file GPX dal modulo "Aggiungi voce".
@@ -1211,6 +1225,13 @@ function isTripItem(it){ return !!(it && it.viaggio); }
 
 function escapeHtml(str){return String(str).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
 function escapeAttr(str){ return escapeHtml(str); }
+function formatDataItaliana(iso){
+  if(!iso) return "";
+  const [y,m,d] = iso.split("-").map(Number);
+  if(!y || !m || !d) return iso;
+  const dt = new Date(Date.UTC(y, m-1, d));
+  return dt.toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+}
 
 function createItalyMap(containerId){
   const map = L.map(containerId,{scrollWheelZoom:false}).setView([42.5,12.5],6);
@@ -1291,6 +1312,7 @@ function extraInfoHtml(it){
   }
   if(it.tipo === "gara"){
     return `<div class="extra-info">
+        ${it.data ? `<span>📅 ${escapeHtml(formatDataItaliana(it.data))}</span>` : (it.anno ? `<span>📅 Edizione ${escapeHtml(String(it.anno))}</span>` : "")}
         ${it.dislivello ? `<span>⬆ ${escapeHtml(it.dislivello)}</span>` : ""}
         ${it.arrivo ? `<span>🏁 Arrivo: ${escapeHtml(it.arrivo)}</span>` : ""}
         ${it.traccia && it.traccia.length ? `<span>📍 Traccia GPX disponibile</span>` : ""}
@@ -1381,6 +1403,9 @@ function openDetailModal(it){
   const hasGiorni = it.tipo === "moto" && it.giorni && it.giorni.length > 0;
 
   const stats = [];
+  if(it.tipo === "gara" && it.data) stats.push(["Data", formatDataItaliana(it.data)]);
+  if(it.tipo === "gara" && !it.data && it.anno) stats.push(["Anno", String(it.anno)]);
+  if(it.tipo === "gara" && it.data && it.anno && it.anno !== it.data.slice(0,4)) stats.push(["Anno/edizione", String(it.anno)]);
   if(it.comune) stats.push(["Partenza", it.comune]);
   stats.push(["Regione", it.regione]);
   if(getPaese(it) !== "Italia") stats.push(["Paese", getPaese(it)]);
@@ -2142,6 +2167,7 @@ function resetFormToCreateMode(){
   document.getElementById("add-form").reset();
   document.getElementById("escursione-fields").hidden = true;
   document.getElementById("gara-fields").hidden = true;
+  document.getElementById("gara-data-fields").hidden = true;
   document.getElementById("gara-arrivo-field").hidden = true;
   document.getElementById("gpx-field").hidden = true;
   document.getElementById("moto-fields").hidden = true;
@@ -2181,6 +2207,8 @@ function openEditForm(it){
   document.getElementById("f-rifugi").value = it.rifugi || "";
   document.getElementById("f-gara-dislivello").value = it.tipo === "gara" ? (it.dislivello || "") : "";
   document.getElementById("f-gara-lunghezza").value = it.tipo === "gara" ? (it.durata || "") : "";
+  document.getElementById("f-gara-data").value = it.data || "";
+  document.getElementById("f-gara-anno").value = it.anno || "";
   document.getElementById("f-arrivo").value = it.arrivo || "";
 
   document.getElementById("f-viaggio").value = it.viaggio || "";
@@ -2252,6 +2280,7 @@ document.getElementById("f-tipo").addEventListener("change", (e)=>{
 
   document.getElementById("escursione-fields").hidden = !isEscursione;
   document.getElementById("gara-fields").hidden = !isGara;
+  document.getElementById("gara-data-fields").hidden = !isGara;
   document.getElementById("gara-arrivo-field").hidden = !isGara;
   document.getElementById("gpx-field").hidden = !(isEscursione || isMoto || isGara);
   document.getElementById("moto-fields").hidden = !isMoto;
@@ -2470,9 +2499,14 @@ document.getElementById("add-form").addEventListener("submit", async e=>{
     const dislivello = document.getElementById("f-gara-dislivello").value.trim();
     const lunghezza = document.getElementById("f-gara-lunghezza").value.trim();
     const arrivo = document.getElementById("f-arrivo").value.trim();
+    const data = document.getElementById("f-gara-data").value.trim();
+    let anno = document.getElementById("f-gara-anno").value.trim();
+    if(!anno && data) anno = data.slice(0, 4); // deduce l'anno dalla data, se non specificato a parte
     if(dislivello) entry.dislivello = dislivello;
     if(lunghezza) entry.durata = lunghezza;
     if(arrivo) entry.arrivo = arrivo;
+    if(data) entry.data = data;
+    if(anno) entry.anno = anno;
   }
   // per "poi" non salviamo altro: solo nome, luogo (comune/regione/coordinate) e foto
 
