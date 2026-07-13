@@ -35,6 +35,7 @@
   --blue: #1d4ed8;
   --violet: #7c3aed;
   --teal: #0e7490;
+  --red: #dc2626;
   --blue-soft: #eef3ff;
 
   --radius: 14px;
@@ -117,6 +118,7 @@ h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.01em; }
 .nav-links a.active.t-poi { color: var(--blue); border-color: var(--blue); }
 .nav-links a.active.t-foto { color: var(--violet); border-color: var(--violet); }
 .nav-links a.active.t-viaggio { color: var(--teal); border-color: var(--teal); }
+.nav-links a.active.t-gara { color: var(--red); border-color: var(--red); }
 .section-header .eyebrow.t-viaggio { color: var(--teal); }
 
 .btn-add {
@@ -166,6 +168,7 @@ h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.01em; }
 .section-header .eyebrow.t-escursione { color: var(--green); }
 .section-header .eyebrow.t-moto { color: var(--orange); }
 .section-header .eyebrow.t-poi { color: var(--blue); }
+.section-header .eyebrow.t-gara { color: var(--red); }
 .section-header h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); margin-bottom: 0.5rem; }
 .section-header p.lead { color: var(--ink-soft); max-width: 56ch; margin: 0; }
 
@@ -230,6 +233,7 @@ h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.01em; }
 .section-card.t-escursione .dot { background: var(--green); }
 .section-card.t-moto .dot { background: var(--orange); }
 .section-card.t-poi .dot { background: var(--blue); }
+.section-card.t-gara .dot { background: var(--red); }
 .section-card h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: 0.4rem; }
 .section-card p { color: var(--ink-soft); font-size: 0.92rem; margin: 0 0 1.1rem; }
 .section-card .count {
@@ -244,6 +248,7 @@ h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.01em; }
 .section-card.t-escursione .go { color: var(--green); }
 .section-card.t-moto .go { color: var(--orange); }
 .section-card.t-poi .go { color: var(--blue); }
+.section-card.t-gara .go { color: var(--red); }
 
 /* --- controls --- */
 .controls {
@@ -353,6 +358,7 @@ details.region[open] > summary::before { content: "–"; }
 .badge.escursione { background: var(--green); }
 .badge.moto { background: var(--orange); }
 .badge.poi { background: var(--blue); }
+.badge.gara { background: var(--red); }
 
 .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
 .card h3 { font-size: 1.04rem; font-weight: 700; margin: 0 0 0.3rem; }
@@ -743,6 +749,7 @@ details.region[open] > summary::before { content: "–"; }
 .card.t-escursione .stats a { color: var(--green); }
 .card.t-moto .stats a { color: var(--orange); }
 .card.t-poi .stats a { color: var(--blue); }
+.card.t-gara .stats a { color: var(--red); }
 
 .empty-state {
   text-align: center;
@@ -840,6 +847,7 @@ button.submit:hover { background: #2b2f38; }
       <a href="javascript:void(0)" data-view="escursioni">Escursioni</a>
       <a href="javascript:void(0)" data-view="motogiri">Motogiri</a>
       <a href="javascript:void(0)" data-view="poi">Punti di interesse</a>
+      <a href="javascript:void(0)" data-view="gare">Gare Trail Running</a>
       <a href="javascript:void(0)" data-view="foto">Foto</a>
       <a href="javascript:void(0)" data-view="viaggio-faroe-islanda">Far Öer & Islanda 2026</a>
     </div>
@@ -851,7 +859,7 @@ button.submit:hover { background: #2b2f38; }
   <div class="hero">
     <p class="eyebrow">IT · Catalogo personale</p>
     <h1>Tutta l'Italia, un itinerario alla volta</h1>
-    <p class="lead">Escursioni, motogiri e punti di interesse raccolti in un unico catalogo, divisi per regione.</p>
+    <p class="lead">Escursioni, motogiri, punti di interesse e gare trail running raccolti in un unico catalogo, divisi per regione.</p>
   </div>
   <div class="map-wrap"><div id="map-home"></div></div>
   <div class="section-cards">
@@ -873,6 +881,12 @@ button.submit:hover { background: #2b2f38; }
       <div class="count" id="count-poi">…</div>
       <div class="go">Esplora →</div>
     </a>
+    <a href="javascript:void(0)" class="section-card t-gara" data-view="gare">
+      <span class="dot"></span><h3>Gare Trail Running</h3>
+      <p>Gare censite con dislivello, lunghezza, traccia GPX, partenza e arrivo.</p>
+      <div class="count" id="count-gara">…</div>
+      <div class="go">Esplora →</div>
+    </a>
   </div>
   <footer>Attività Mauro — catalogo personale</footer>
 </div>
@@ -885,6 +899,9 @@ button.submit:hover { background: #2b2f38; }
 
 <div id="view-poi" class="view section-view" hidden data-tipo="poi" data-color="t-poi"
      data-title="Punti di interesse" data-lead="Borghi, monumenti e tappe da non perdere lungo i tuoi itinerari, regione per regione."></div>
+
+<div id="view-gare" class="view section-view" hidden data-tipo="gara" data-color="t-gara"
+     data-title="Gare Trail Running" data-lead="Gare di trail running censite con dislivello, lunghezza, traccia GPX, link al sito e luoghi di partenza e arrivo."></div>
 
 <div id="view-viaggio-faroe-islanda" class="view trip-view" hidden
      data-viaggio="Isole Far Öer e Islanda 2026" data-color="t-viaggio"
@@ -963,6 +980,7 @@ button.submit:hover { background: #2b2f38; }
           <option value="escursione">Escursioni</option>
           <option value="moto">Motogiri</option>
           <option value="poi">Punti di interesse</option>
+          <option value="gara">Gare Trail Running</option>
         </select>
       </div>
       <div class="field"><label for="f-nome">Nome</label><input type="text" id="f-nome" placeholder="Es. Sentiero del Monte Rosa" required></div>
@@ -990,6 +1008,16 @@ button.submit:hover { background: #2b2f38; }
       <div class="row" id="escursione-fields" hidden>
         <div class="field"><label for="f-dislivello">Dislivello</label><input type="text" id="f-dislivello" placeholder="Es. 850 m"></div>
         <div class="field"><label for="f-rifugi">Rifugi lungo il percorso</label><input type="text" id="f-rifugi" placeholder="Es. Rifugio Vandelli"></div>
+      </div>
+
+      <div class="row" id="gara-fields" hidden>
+        <div class="field"><label for="f-gara-dislivello">Dislivello</label><input type="text" id="f-gara-dislivello" placeholder="Es. 2500 m D+"></div>
+        <div class="field"><label for="f-gara-lunghezza">Lunghezza</label><input type="text" id="f-gara-lunghezza" placeholder="Es. 42 km"></div>
+      </div>
+      <div class="field" id="gara-arrivo-field" hidden>
+        <label for="f-arrivo">Luogo di arrivo</label>
+        <input type="text" id="f-arrivo" placeholder="Es. Courmayeur">
+        <p class="desc">Lascia vuoto se la gara è ad anello, con arrivo nello stesso luogo della partenza (indicata nel campo "Comune di partenza" qui sopra).</p>
       </div>
 
       <div class="field" id="gpx-field" hidden>
@@ -1139,18 +1167,21 @@ button.submit:hover { background: #2b2f38; }
    - id: identificativo univoco, usato solo per trovare facilmente la voce
      da eliminare in futuro (es. "anello-lago-sorapis"). Se aggiungi una
      voce dal modulo del sito viene generato da solo.
-   - tipo: "escursione" | "moto" | "poi"
+   - tipo: "escursione" | "moto" | "poi" | "gara"
    - paese: testo, es. "Italia" (se assente viene considerato "Italia" per compatibilità
      con le voci create prima dell'introduzione di questo campo)
-   - nome, regione, comune: testo
+   - nome, regione, comune: testo (per "gara", comune = luogo di partenza)
    - descrizione: testo libero
    - lat, lng: coordinate decimali (es. da Google Maps, tasto destro sul punto)
    - difficolta: "—" | "Facile" | "Media" | "Difficile"
-   - durata: testo libero, es. "4h, 11 km"
-   - link: URL a mappa o sito (facoltativo, "" se assente)
-   - dislivello: solo per "escursione", testo libero es. "850 m" (facoltativo)
+   - durata: testo libero, es. "4h, 11 km" (per "gara" contiene la lunghezza, es. "42 km")
+   - link: URL a mappa o sito (facoltativo, "" se assente; per "gara" è il link al sito
+     ufficiale della manifestazione)
+   - dislivello: per "escursione" e "gara", testo libero es. "850 m" o "2500 m D+" (facoltativo)
    - rifugi: solo per "escursione", testo libero es. "Rifugio Vandelli" (facoltativo)
-   - traccia: solo per "escursione", array di coppie [lat, lng] che disegna
+   - arrivo: solo per "gara", testo libero col luogo di arrivo, se diverso dalla
+     partenza indicata in "comune" (facoltativo, gare ad anello possono ometterlo)
+   - traccia: per "escursione", "moto" e "gara", array di coppie [lat, lng] che disegna
      il percorso sulla mappa (facoltativo). Generato automaticamente se
      carichi un file GPX dal modulo "Aggiungi voce".
 
@@ -1163,8 +1194,8 @@ button.submit:hover { background: #2b2f38; }
 let ITEMS = [];
 /* ===================================================================== */
 
-const TIPO_LABEL = { escursione: "Escursione", moto: "Motogiro", poi: "Punto di interesse" };
-const TIPO_COLOR = { escursione: "#15803d", moto: "#c2410c", poi: "#1d4ed8" };
+const TIPO_LABEL = { escursione: "Escursione", moto: "Motogiro", poi: "Punto di interesse", gara: "Gara Trail Running" };
+const TIPO_COLOR = { escursione: "#15803d", moto: "#c2410c", poi: "#1d4ed8", gara: "#dc2626" };
 const REGIONI = ["Abruzzo","Basilicata","Calabria","Campania","Emilia-Romagna","Friuli-Venezia Giulia","Lazio","Liguria","Lombardia","Marche","Molise","Piemonte","Puglia","Sardegna","Sicilia","Toscana","Trentino-Alto Adige","Umbria","Valle d'Aosta","Veneto"];
 const PAESI = ["Italia","Francia","Svizzera","Austria","Slovenia","Germania","Spagna","Portogallo","Croazia","Grecia","Regno Unito","Irlanda","Belgio","Paesi Bassi","Norvegia","Svezia","Danimarca","Islanda","Isole Fær Øer","Polonia","Repubblica Ceca","Ungheria","Romania","Altro"];
 const PAESE_CODES = { "Italia":"it","Francia":"fr","Svizzera":"ch","Austria":"at","Slovenia":"si","Germania":"de","Spagna":"es","Portogallo":"pt","Croazia":"hr","Grecia":"gr","Regno Unito":"gb","Irlanda":"ie","Belgio":"be","Paesi Bassi":"nl","Norvegia":"no","Svezia":"se","Danimarca":"dk","Islanda":"is","Isole Fær Øer":"fo","Polonia":"pl","Repubblica Ceca":"cz","Ungheria":"hu","Romania":"ro" };
@@ -1258,6 +1289,13 @@ function extraInfoHtml(it){
     if(it.traccia && it.traccia.length) bits.push(`<span>📍 Traccia GPX disponibile</span>`);
     return bits.length ? `<div class="extra-info">${bits.join("")}</div>` : "";
   }
+  if(it.tipo === "gara"){
+    return `<div class="extra-info">
+        ${it.dislivello ? `<span>⬆ ${escapeHtml(it.dislivello)}</span>` : ""}
+        ${it.arrivo ? `<span>🏁 Arrivo: ${escapeHtml(it.arrivo)}</span>` : ""}
+        ${it.traccia && it.traccia.length ? `<span>📍 Traccia GPX disponibile</span>` : ""}
+      </div>`;
+  }
   return "";
 }
 
@@ -1346,10 +1384,11 @@ function openDetailModal(it){
   if(it.comune) stats.push(["Partenza", it.comune]);
   stats.push(["Regione", it.regione]);
   if(getPaese(it) !== "Italia") stats.push(["Paese", getPaese(it)]);
-  if(!hasGiorni && it.durata) stats.push(["Durata / Lunghezza", it.durata]);
+  if(!hasGiorni && it.durata) stats.push([it.tipo === "gara" ? "Lunghezza" : "Durata / Lunghezza", it.durata]);
   if(!hasGiorni && it.difficolta && it.difficolta !== "—") stats.push(["Difficoltà", it.difficolta]);
   if(it.dislivello) stats.push(["Dislivello", it.dislivello]);
   if(it.rifugi) stats.push(["Rifugi", it.rifugi]);
+  if(it.arrivo) stats.push(["Arrivo", it.arrivo]);
   if(hasGiorni) stats.push(["Giorni", String(it.giorni.length)]);
   document.getElementById("detail-stats").innerHTML = stats.map(([label, value]) => `
     <div class="detail-stat">
@@ -1659,11 +1698,12 @@ let homeMap = null;
 let homeLayer = null;
 
 function updateHomeCounts(){
-  const counts = {escursione:0, moto:0, poi:0};
+  const counts = {escursione:0, moto:0, poi:0, gara:0};
   ITEMS.forEach(it=>{ if(!isTripItem(it) && counts[it.tipo]!==undefined) counts[it.tipo]++; });
   document.getElementById("count-escursione").textContent = `${counts.escursione} voci`;
   document.getElementById("count-moto").textContent = `${counts.moto} voci`;
   document.getElementById("count-poi").textContent = `${counts.poi} voci`;
+  document.getElementById("count-gara").textContent = `${counts.gara} voci`;
 }
 
 function initHomeMap(){
@@ -1727,15 +1767,15 @@ function applyLocalPhotos(id, urls){
 // --- router a pagina singola ---
 function navigate(viewName){
   document.querySelectorAll(".view").forEach(v=> v.hidden = (v.id !== "view-"+viewName));
-  document.querySelectorAll(".nav-links a").forEach(a=> a.classList.remove("active","t-escursione","t-moto","t-poi","t-foto","t-viaggio"));
-  const colorMap = {escursioni:"t-escursione", motogiri:"t-moto", poi:"t-poi", foto:"t-foto", "viaggio-faroe-islanda":"t-viaggio"};
+  document.querySelectorAll(".nav-links a").forEach(a=> a.classList.remove("active","t-escursione","t-moto","t-poi","t-foto","t-viaggio","t-gara"));
+  const colorMap = {escursioni:"t-escursione", motogiri:"t-moto", poi:"t-poi", foto:"t-foto", "viaggio-faroe-islanda":"t-viaggio", gare:"t-gara"};
   if(colorMap[viewName]){
     const link = document.querySelector(`.nav-links a[data-view="${viewName}"]`);
     if(link) link.classList.add("active", colorMap[viewName]);
   }
   if(viewName==="home" && !homeMapInit){ initHomeMap(); homeMapInit = true; }
-  if(["escursioni","motogiri","poi"].includes(viewName)){
-    const tipo = {escursioni:"escursione", motogiri:"moto", poi:"poi"}[viewName];
+  if(["escursioni","motogiri","poi","gare"].includes(viewName)){
+    const tipo = {escursioni:"escursione", motogiri:"moto", poi:"poi", gare:"gara"}[viewName];
     const st = sectionState[tipo];
     st.items = ITEMS.filter(it => it.tipo === tipo && !isTripItem(it));
     st.refreshFilters();
@@ -2101,6 +2141,8 @@ function resetFormToCreateMode(){
   document.getElementById("existing-photos").innerHTML = "";
   document.getElementById("add-form").reset();
   document.getElementById("escursione-fields").hidden = true;
+  document.getElementById("gara-fields").hidden = true;
+  document.getElementById("gara-arrivo-field").hidden = true;
   document.getElementById("gpx-field").hidden = true;
   document.getElementById("moto-fields").hidden = true;
   document.getElementById("moto-days-container").innerHTML = "";
@@ -2137,6 +2179,9 @@ function openEditForm(it){
   document.getElementById("f-link").value = it.link || "";
   document.getElementById("f-dislivello").value = it.dislivello || "";
   document.getElementById("f-rifugi").value = it.rifugi || "";
+  document.getElementById("f-gara-dislivello").value = it.tipo === "gara" ? (it.dislivello || "") : "";
+  document.getElementById("f-gara-lunghezza").value = it.tipo === "gara" ? (it.durata || "") : "";
+  document.getElementById("f-arrivo").value = it.arrivo || "";
 
   document.getElementById("f-viaggio").value = it.viaggio || "";
 
@@ -2203,9 +2248,12 @@ document.getElementById("f-tipo").addEventListener("change", (e)=>{
   const isEscursione = tipo === "escursione";
   const isMoto = tipo === "moto";
   const isPoi = tipo === "poi";
+  const isGara = tipo === "gara";
 
   document.getElementById("escursione-fields").hidden = !isEscursione;
-  document.getElementById("gpx-field").hidden = !(isEscursione || isMoto);
+  document.getElementById("gara-fields").hidden = !isGara;
+  document.getElementById("gara-arrivo-field").hidden = !isGara;
+  document.getElementById("gpx-field").hidden = !(isEscursione || isMoto || isGara);
   document.getElementById("moto-fields").hidden = !isMoto;
 
   document.getElementById("field-descrizione").hidden = isPoi;
@@ -2311,10 +2359,18 @@ document.getElementById("f-gpx").addEventListener("change", (e)=>{
       const coords = rawPoints.map(p => [p.lat, p.lng]);
       parsedTraccia = decimate(coords, 200);
 
-      // precompila dislivello se il campo è vuoto
+      // precompila dislivello se il campo è vuoto (escursioni e gare)
       const dislivelloInput = document.getElementById("f-dislivello");
       if(hasEle && !dislivelloInput.value.trim()){
         dislivelloInput.value = `${Math.round(dislivelloPos)} m`;
+      }
+      const garaDislivelloInput = document.getElementById("f-gara-dislivello");
+      if(hasEle && !garaDislivelloInput.value.trim()){
+        garaDislivelloInput.value = `${Math.round(dislivelloPos)} m D+`;
+      }
+      const garaLunghezzaInput = document.getElementById("f-gara-lunghezza");
+      if(!garaLunghezzaInput.value.trim()){
+        garaLunghezzaInput.value = `${(distanza/1000).toFixed(1)} km`;
       }
       // precompila posizione di partenza dal file GPX (sovrascrive quella del comune)
       setPickedLocation(coords[0][0], coords[0][1], "dal file GPX");
@@ -2410,10 +2466,17 @@ document.getElementById("add-form").addEventListener("submit", async e=>{
     if(rifugi) entry.rifugi = rifugi;
   } else if(tipo === "moto"){
     entry.giorni = collectMotoDays();
+  } else if(tipo === "gara"){
+    const dislivello = document.getElementById("f-gara-dislivello").value.trim();
+    const lunghezza = document.getElementById("f-gara-lunghezza").value.trim();
+    const arrivo = document.getElementById("f-arrivo").value.trim();
+    if(dislivello) entry.dislivello = dislivello;
+    if(lunghezza) entry.durata = lunghezza;
+    if(arrivo) entry.arrivo = arrivo;
   }
   // per "poi" non salviamo altro: solo nome, luogo (comune/regione/coordinate) e foto
 
-  if(tipo === "escursione" || tipo === "moto"){
+  if(tipo === "escursione" || tipo === "moto" || tipo === "gara"){
     if(parsedTraccia){
       entry.traccia = parsedTraccia; // nuova traccia caricata: sostituisce quella precedente
     } else if(isEditing && editingOriginalItem && editingOriginalItem.traccia){
