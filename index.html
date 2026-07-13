@@ -554,6 +554,33 @@ details.region[open] > summary::before { content: "–"; }
 }
 .btn-list-view:hover { background: #2b2f38; }
 
+.btn-add-distanza {
+  font-family: var(--body);
+  font-weight: 700;
+  font-size: 0.86rem;
+  background: #fff;
+  color: var(--ink);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+  width: 100%;
+}
+.btn-add-distanza:hover { background: var(--surface); border-color: var(--ink); }
+.gara-distanza-block { position: relative; }
+.btn-remove-distanza {
+  font-family: var(--body);
+  font-weight: 700;
+  font-size: 0.78rem;
+  background: none;
+  color: #b91c1c;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 0.7rem;
+}
+.btn-remove-distanza:hover { text-decoration: underline; }
+
 .list-modal-controls {
   display: flex;
   flex-wrap: wrap;
@@ -1010,36 +1037,50 @@ button.submit:hover { background: #2b2f38; }
         <div class="field"><label for="f-rifugi">Rifugi lungo il percorso</label><input type="text" id="f-rifugi" placeholder="Es. Rifugio Vandelli"></div>
       </div>
 
-      <div class="row" id="gara-fields" hidden>
-        <div class="field"><label for="f-gara-dislivello">Dislivello</label><input type="text" id="f-gara-dislivello" placeholder="Es. 2500 m D+"></div>
-        <div class="field"><label for="f-gara-lunghezza">Lunghezza</label><input type="text" id="f-gara-lunghezza" placeholder="Es. 42 km"></div>
+      <div class="field" id="gara-multi-toggle" hidden>
+        <label class="list-checkbox"><input type="checkbox" id="f-gara-multi"> Questa gara ha più distanze/percorsi (es. 20K, 50K, 100K)</label>
+        <p class="desc">Utile per eventi con più gare nello stesso weekend (es. Ultra + Skyrace): eviti di creare una scheda separata per ognuna.</p>
       </div>
-      <div class="row" id="gara-data-fields" hidden>
-        <div class="field">
-          <label for="f-gara-data">Data della gara</label>
-          <input type="date" id="f-gara-data">
-          <p class="desc">Facoltativa: se non conosci ancora la data esatta della prossima edizione, lascia vuoto e compila solo l'anno.</p>
+
+      <div id="gara-single-fields">
+        <div class="row" id="gara-fields" hidden>
+          <div class="field"><label for="f-gara-dislivello">Dislivello</label><input type="text" id="f-gara-dislivello" placeholder="Es. 2500 m D+"></div>
+          <div class="field"><label for="f-gara-lunghezza">Lunghezza</label><input type="text" id="f-gara-lunghezza" placeholder="Es. 42 km"></div>
         </div>
-        <div class="field">
-          <label for="f-gara-anno">Anno / edizione</label>
-          <input type="number" id="f-gara-anno" placeholder="Es. 2026" min="1900" max="2100" step="1">
+        <div class="row" id="gara-data-fields" hidden>
+          <div class="field">
+            <label for="f-gara-data">Data della gara</label>
+            <input type="date" id="f-gara-data">
+            <p class="desc">Facoltativa: se non conosci ancora la data esatta della prossima edizione, lascia vuoto e compila solo l'anno.</p>
+          </div>
+          <div class="field">
+            <label for="f-gara-anno">Anno / edizione</label>
+            <input type="number" id="f-gara-anno" placeholder="Es. 2026" min="1900" max="2100" step="1">
+          </div>
+        </div>
+        <div class="field" id="gara-arrivo-field" hidden>
+          <label for="f-arrivo">Luogo di arrivo</label>
+          <input type="text" id="f-arrivo" placeholder="Es. Courmayeur">
+          <p class="desc">Lascia vuoto se la gara è ad anello, con arrivo nello stesso luogo della partenza (indicata nel campo "Comune di partenza" qui sopra).</p>
+        </div>
+        <div class="field" id="gara-utmb-field" hidden>
+          <label class="list-checkbox"><input type="checkbox" id="f-gara-utmb"> Gara qualificante UTMB</label>
+          <div class="field" id="gara-utmb-distanza-wrap" style="margin-top:0.7rem;" hidden>
+            <label for="f-gara-utmb-distanza">Distanza di qualifica</label>
+            <select id="f-gara-utmb-distanza">
+              <option value="20K">20K</option>
+              <option value="50K">50K</option>
+              <option value="100K">100K</option>
+            </select>
+          </div>
         </div>
       </div>
-      <div class="field" id="gara-arrivo-field" hidden>
-        <label for="f-arrivo">Luogo di arrivo</label>
-        <input type="text" id="f-arrivo" placeholder="Es. Courmayeur">
-        <p class="desc">Lascia vuoto se la gara è ad anello, con arrivo nello stesso luogo della partenza (indicata nel campo "Comune di partenza" qui sopra).</p>
-      </div>
-      <div class="field" id="gara-utmb-field" hidden>
-        <label class="list-checkbox"><input type="checkbox" id="f-gara-utmb"> Gara qualificante UTMB</label>
-        <div class="field" id="gara-utmb-distanza-wrap" style="margin-top:0.7rem;" hidden>
-          <label for="f-gara-utmb-distanza">Distanza di qualifica</label>
-          <select id="f-gara-utmb-distanza">
-            <option value="20K">20K</option>
-            <option value="50K">50K</option>
-            <option value="100K">100K</option>
-          </select>
-        </div>
+
+      <div class="field" id="gara-multi-fields" hidden>
+        <label>Distanze / percorsi di questa gara</label>
+        <p class="desc">Aggiungi una scheda per ciascuna distanza offerta dall'evento (nome, data, lunghezza, dislivello, arrivo, qualifica UTMB e traccia GPX).</p>
+        <div id="gara-distanze-container" style="display:flex; flex-direction:column; gap:0.9rem; margin-top:0.6rem;"></div>
+        <button type="button" class="btn-add-distanza" id="btn-add-distanza" style="margin-top:0.8rem;">+ Aggiungi distanza</button>
       </div>
 
       <div class="field" id="gpx-field" hidden>
@@ -1182,6 +1223,10 @@ button.submit:hover { background: #2b2f38; }
         <p class="detail-section-label">Tappe</p>
         <div id="detail-days"></div>
       </div>
+      <div id="detail-distanze-wrap" style="display:none; margin:0.2rem 0 1.2rem;">
+        <p class="detail-section-label">Distanze</p>
+        <div id="detail-distanze"></div>
+      </div>
       <p id="detail-desc"></p>
       <div id="detail-map-wrap" style="display:none; margin:1.2rem 0;">
         <div id="detail-map" style="height:360px; border-radius:8px; border:1px solid var(--border);"></div>
@@ -1253,6 +1298,13 @@ button.submit:hover { background: #2b2f38; }
    - utmb: solo per "gara", booleano (true se la gara è qualificante per l'UTMB,
      assente/false altrimenti)
    - utmbDistanza: solo per "gara" con utmb=true, "20K" | "50K" | "100K"
+   - distanze: solo per "gara" con più percorsi nello stesso evento (es. un weekend con
+     20K, 50K e 100K): array di schede { label, data, durata, dislivello, arrivo,
+     utmb, utmbDistanza, traccia }, ciascuna con gli stessi significati dei campi
+     equivalenti a livello di gara. Quando "distanze" è presente e non vuoto, i campi
+     dislivello/durata/data/anno/arrivo/utmb/utmbDistanza/traccia a livello di gara
+     vengono ignorati nella visualizzazione: partenza (comune), regione e paese restano
+     invece condivisi da tutte le schede.
    - traccia: per "escursione", "moto" e "gara", array di coppie [lat, lng] che disegna
      il percorso sulla mappa (facoltativo). Generato automaticamente se
      carichi un file GPX dal modulo "Aggiungi voce".
@@ -1369,6 +1421,10 @@ function extraInfoHtml(it){
     return bits.length ? `<div class="extra-info">${bits.join("")}</div>` : "";
   }
   if(it.tipo === "gara"){
+    if(Array.isArray(it.distanze) && it.distanze.length){
+      const chips = it.distanze.map(d => `<span>🏁 ${escapeHtml(d.label || d.durata || "Distanza")}${d.utmb ? " 🏔" : ""}</span>`).join("");
+      return `<div class="extra-info">${chips}</div>`;
+    }
     return `<div class="extra-info">
         ${it.data ? `<span>📅 ${escapeHtml(formatDataItaliana(it.data))}</span>` : (it.anno ? `<span>📅 Edizione ${escapeHtml(String(it.anno))}</span>` : "")}
         ${it.dislivello ? `<span>⬆ ${escapeHtml(it.dislivello)}</span>` : ""}
@@ -1460,20 +1516,22 @@ function openDetailModal(it){
   descEl.style.display = it.descrizione ? "block" : "none";
 
   const hasGiorni = it.tipo === "moto" && it.giorni && it.giorni.length > 0;
+  const hasDistanze = it.tipo === "gara" && Array.isArray(it.distanze) && it.distanze.length > 0;
 
   const stats = [];
-  if(it.tipo === "gara" && it.data) stats.push(["Data", formatDataItaliana(it.data)]);
-  if(it.tipo === "gara" && !it.data && it.anno) stats.push(["Anno", String(it.anno)]);
-  if(it.tipo === "gara" && it.data && it.anno && it.anno !== it.data.slice(0,4)) stats.push(["Anno/edizione", String(it.anno)]);
-  if(it.tipo === "gara" && it.utmb) stats.push(["Qualifica UTMB", it.utmbDistanza || "Sì"]);
+  if(it.tipo === "gara" && hasDistanze) stats.push(["Distanze", String(it.distanze.length)]);
+  if(it.tipo === "gara" && !hasDistanze && it.data) stats.push(["Data", formatDataItaliana(it.data)]);
+  if(it.tipo === "gara" && !hasDistanze && !it.data && it.anno) stats.push(["Anno", String(it.anno)]);
+  if(it.tipo === "gara" && !hasDistanze && it.data && it.anno && it.anno !== it.data.slice(0,4)) stats.push(["Anno/edizione", String(it.anno)]);
+  if(it.tipo === "gara" && !hasDistanze && it.utmb) stats.push(["Qualifica UTMB", it.utmbDistanza || "Sì"]);
   if(it.comune) stats.push(["Partenza", it.comune]);
   stats.push(["Regione", it.regione]);
   if(getPaese(it) !== "Italia") stats.push(["Paese", getPaese(it)]);
-  if(!hasGiorni && it.durata) stats.push([it.tipo === "gara" ? "Lunghezza" : "Durata / Lunghezza", it.durata]);
+  if(!hasGiorni && !hasDistanze && it.durata) stats.push([it.tipo === "gara" ? "Lunghezza" : "Durata / Lunghezza", it.durata]);
   if(!hasGiorni && it.difficolta && it.difficolta !== "—") stats.push(["Difficoltà", it.difficolta]);
-  if(it.dislivello) stats.push(["Dislivello", it.dislivello]);
+  if(!hasDistanze && it.dislivello) stats.push(["Dislivello", it.dislivello]);
   if(it.rifugi) stats.push(["Rifugi", it.rifugi]);
-  if(it.arrivo) stats.push(["Arrivo", it.arrivo]);
+  if(!hasDistanze && it.arrivo) stats.push(["Arrivo", it.arrivo]);
   if(hasGiorni) stats.push(["Giorni", String(it.giorni.length)]);
   document.getElementById("detail-stats").innerHTML = stats.map(([label, value]) => `
     <div class="detail-stat">
@@ -1497,6 +1555,38 @@ function openDetailModal(it){
     `).join("");
   } else {
     daysWrap.style.display = "none";
+  }
+
+  const distanzeWrap = document.getElementById("detail-distanze-wrap");
+  if(hasDistanze){
+    distanzeWrap.style.display = "block";
+    const distanzeEl = document.getElementById("detail-distanze");
+    distanzeEl.innerHTML = it.distanze.map((d) => `
+      <div class="detail-day-block">
+        <div class="detail-day-title">${escapeHtml(d.label || "Distanza")}${d.utmb ? " 🏔 UTMB " + escapeHtml(d.utmbDistanza || "") : ""}</div>
+        <div class="detail-day-stats">
+          ${d.durata ? `<span>${escapeHtml(d.durata)}</span>` : ""}
+          ${d.dislivello ? `<span>${escapeHtml(d.dislivello)}</span>` : ""}
+          ${d.data ? `<span>${escapeHtml(formatDataItaliana(d.data))}</span>` : ""}
+          ${d.arrivo ? `<span>Arrivo: ${escapeHtml(d.arrivo)}</span>` : ""}
+        </div>
+      </div>
+    `).join("");
+    // pulsanti scarica GPX per le distanze che hanno una propria traccia
+    distanzeEl.querySelectorAll(".detail-day-block").forEach((block, i) => {
+      const d = it.distanze[i];
+      if(d.traccia && d.traccia.length > 1){
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn-close";
+        btn.style.marginTop = "0.6rem";
+        btn.textContent = "⬇ Scarica GPX di questa distanza";
+        btn.addEventListener("click", ()=> downloadGpx({ nome: `${it.nome}-${d.label || "distanza"}`, traccia: d.traccia }));
+        block.appendChild(btn);
+      }
+    });
+  } else {
+    distanzeWrap.style.display = "none";
   }
 
   const photosOuterWrap = document.getElementById("detail-photos-wrap");
@@ -1538,7 +1628,8 @@ function openDetailModal(it){
   }
 
   const mapWrap = document.getElementById("detail-map-wrap");
-  const hasMap = (it.traccia && it.traccia.length > 1) || (typeof it.lat === "number" && typeof it.lng === "number");
+  const distanzeConTraccia = hasDistanze ? it.distanze.filter(d => d.traccia && d.traccia.length > 1) : [];
+  const hasMap = (it.traccia && it.traccia.length > 1) || distanzeConTraccia.length > 0 || (typeof it.lat === "number" && typeof it.lng === "number");
   document.getElementById("detail-modal").hidden = false;
 
   if(hasMap){
@@ -1548,8 +1639,18 @@ function openDetailModal(it){
       detailMap = L.map("detail-map", { scrollWheelZoom: false });
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap", maxZoom: 18 }).addTo(detailMap);
       addMarkers(detailMap, [it]);
+      const trackColors = ["#dc2626", "#1d4ed8", "#15803d", "#c2410c", "#7c3aed"];
+      const allBoundsPoints = [];
       if(it.traccia && it.traccia.length > 1){
-        detailMap.fitBounds(L.latLngBounds(it.traccia), { padding: [16,16] });
+        L.polyline(it.traccia, { color: trackColors[0], weight: 4 }).addTo(detailMap);
+        allBoundsPoints.push(...it.traccia);
+      }
+      distanzeConTraccia.forEach((d, i) => {
+        L.polyline(d.traccia, { color: trackColors[i % trackColors.length], weight: 4 }).addTo(detailMap);
+        allBoundsPoints.push(...d.traccia);
+      });
+      if(allBoundsPoints.length > 1){
+        detailMap.fitBounds(L.latLngBounds(allBoundsPoints), { padding: [16,16] });
       } else {
         detailMap.setView([it.lat, it.lng], 12);
       }
@@ -2231,6 +2332,11 @@ function resetFormToCreateMode(){
   document.getElementById("existing-photos").innerHTML = "";
   document.getElementById("add-form").reset();
   document.getElementById("escursione-fields").hidden = true;
+  document.getElementById("gara-multi-toggle").hidden = true;
+  document.getElementById("f-gara-multi").checked = false;
+  document.getElementById("gara-single-fields").hidden = false;
+  document.getElementById("gara-multi-fields").hidden = true;
+  document.getElementById("gara-distanze-container").innerHTML = "";
   document.getElementById("gara-fields").hidden = true;
   document.getElementById("gara-data-fields").hidden = true;
   document.getElementById("gara-arrivo-field").hidden = true;
@@ -2281,6 +2387,15 @@ function openEditForm(it){
   document.getElementById("f-gara-utmb").checked = !!it.utmb;
   document.getElementById("gara-utmb-distanza-wrap").hidden = !it.utmb;
   document.getElementById("f-gara-utmb-distanza").value = it.utmbDistanza || "20K";
+
+  const hasDistanze = it.tipo === "gara" && Array.isArray(it.distanze) && it.distanze.length > 0;
+  document.getElementById("f-gara-multi").checked = hasDistanze;
+  if(hasDistanze){
+    renderGaraDistanzeBlocks(it.distanze);
+  } else {
+    document.getElementById("gara-distanze-container").innerHTML = "";
+  }
+  updateGaraMultiVisibility();
 
   document.getElementById("f-viaggio").value = it.viaggio || "";
 
@@ -2350,6 +2465,7 @@ document.getElementById("f-tipo").addEventListener("change", (e)=>{
   const isGara = tipo === "gara";
 
   document.getElementById("escursione-fields").hidden = !isEscursione;
+  document.getElementById("gara-multi-toggle").hidden = !isGara;
   document.getElementById("gara-fields").hidden = !isGara;
   document.getElementById("gara-data-fields").hidden = !isGara;
   document.getElementById("gara-arrivo-field").hidden = !isGara;
@@ -2360,6 +2476,8 @@ document.getElementById("f-tipo").addEventListener("change", (e)=>{
   document.getElementById("field-descrizione").hidden = isPoi;
   document.getElementById("field-difficolta-durata").hidden = !isEscursione;
 
+  updateGaraMultiVisibility();
+
   if(isMoto && document.getElementById("moto-days-container").children.length === 0){
     renderMotoDayBlocks(parseInt(document.getElementById("f-giorni-count").value, 10));
   }
@@ -2368,6 +2486,123 @@ document.getElementById("f-tipo").addEventListener("change", (e)=>{
 document.getElementById("f-gara-utmb").addEventListener("change", (e)=>{
   document.getElementById("gara-utmb-distanza-wrap").hidden = !e.target.checked;
 });
+
+// --- gare: schede multi-distanza (es. 20K / 50K / 100K nello stesso evento) ---
+document.getElementById("f-gara-multi").addEventListener("change", updateGaraMultiVisibility);
+
+function updateGaraMultiVisibility(){
+  const isGara = document.getElementById("f-tipo").value === "gara";
+  const isMulti = isGara && document.getElementById("f-gara-multi").checked;
+  document.getElementById("gara-single-fields").hidden = isMulti;
+  document.getElementById("gara-multi-fields").hidden = !isMulti;
+  if(isGara){
+    document.getElementById("gpx-field").hidden = isMulti;
+  }
+  if(isMulti && document.getElementById("gara-distanze-container").children.length === 0){
+    addDistanzaBlock();
+  }
+}
+
+function addDistanzaBlock(scheda){
+  const container = document.getElementById("gara-distanze-container");
+  const block = document.createElement("div");
+  block.className = "moto-day-block gara-distanza-block";
+  block.innerHTML = `
+    <div class="row">
+      <div class="field"><label>Nome distanza</label><input type="text" class="gd-label" placeholder="Es. 20K, 50K, 100K"></div>
+      <div class="field"><label>Data</label><input type="date" class="gd-data"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Lunghezza</label><input type="text" class="gd-durata" placeholder="Es. 20 km"></div>
+      <div class="field"><label>Dislivello</label><input type="text" class="gd-dislivello" placeholder="Es. 1200 m D+"></div>
+    </div>
+    <div class="field"><label>Luogo di arrivo</label><input type="text" class="gd-arrivo" placeholder="Se diverso dalla partenza"></div>
+    <div class="field">
+      <label class="list-checkbox"><input type="checkbox" class="gd-utmb"> Qualificante UTMB</label>
+      <div class="field gd-utmb-distanza-wrap" style="margin-top:0.6rem;" hidden>
+        <select class="gd-utmb-distanza">
+          <option value="20K">20K</option>
+          <option value="50K">50K</option>
+          <option value="100K">100K</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Traccia GPX (facoltativa)</label>
+      <input type="file" class="gd-gpx" accept=".gpx">
+      <p class="desc gd-gpx-info"></p>
+    </div>
+    <button type="button" class="btn-remove-distanza">✕ Rimuovi questa distanza</button>
+  `;
+  block.querySelector(".gd-label").value = (scheda && scheda.label) || "";
+  block.querySelector(".gd-data").value = (scheda && scheda.data) || "";
+  block.querySelector(".gd-durata").value = (scheda && scheda.durata) || "";
+  block.querySelector(".gd-dislivello").value = (scheda && scheda.dislivello) || "";
+  block.querySelector(".gd-arrivo").value = (scheda && scheda.arrivo) || "";
+
+  const utmbCheck = block.querySelector(".gd-utmb");
+  utmbCheck.checked = !!(scheda && scheda.utmb);
+  block.querySelector(".gd-utmb-distanza-wrap").hidden = !utmbCheck.checked;
+  block.querySelector(".gd-utmb-distanza").value = (scheda && scheda.utmbDistanza) || "20K";
+  utmbCheck.addEventListener("change", (e)=>{
+    block.querySelector(".gd-utmb-distanza-wrap").hidden = !e.target.checked;
+  });
+
+  block._traccia = (scheda && scheda.traccia) || null;
+  if(block._traccia && block._traccia.length){
+    block.querySelector(".gd-gpx-info").textContent = "Traccia GPX già caricata — carica un nuovo file solo per sostituirla.";
+  }
+  block.querySelector(".gd-gpx").addEventListener("change", (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt)=>{
+      try {
+        const { coords, distanzaKm, dislivelloPos, hasEle, trkptCount } = parseGpxXmlText(evt.target.result);
+        block._traccia = coords;
+        const durataInput = block.querySelector(".gd-durata");
+        if(!durataInput.value.trim()) durataInput.value = `${distanzaKm.toFixed(1)} km`;
+        const dislivelloInput = block.querySelector(".gd-dislivello");
+        if(hasEle && !dislivelloInput.value.trim()) dislivelloInput.value = `${Math.round(dislivelloPos)} m D+`;
+        block.querySelector(".gd-gpx-info").textContent = `${distanzaKm.toFixed(1)} km · ${trkptCount} punti originali` +
+          (hasEle ? ` · dislivello positivo stimato ${Math.round(dislivelloPos)} m` : "");
+      } catch(err){
+        alert("Non sono riuscito a leggere questo file GPX: " + err.message);
+        block._traccia = null;
+        block.querySelector(".gd-gpx-info").textContent = "";
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  block.querySelector(".btn-remove-distanza").addEventListener("click", () => block.remove());
+  container.appendChild(block);
+}
+document.getElementById("btn-add-distanza").addEventListener("click", () => addDistanzaBlock());
+
+function renderGaraDistanzeBlocks(distanze){
+  document.getElementById("gara-distanze-container").innerHTML = "";
+  (distanze || []).forEach(d => addDistanzaBlock(d));
+}
+
+function collectGaraDistanze(){
+  return Array.from(document.querySelectorAll("#gara-distanze-container .gara-distanza-block")).map(block => {
+    const utmb = block.querySelector(".gd-utmb").checked;
+    const scheda = {
+      label: block.querySelector(".gd-label").value.trim(),
+      data: block.querySelector(".gd-data").value.trim(),
+      durata: block.querySelector(".gd-durata").value.trim(),
+      dislivello: block.querySelector(".gd-dislivello").value.trim(),
+      arrivo: block.querySelector(".gd-arrivo").value.trim()
+    };
+    if(utmb){
+      scheda.utmb = true;
+      scheda.utmbDistanza = block.querySelector(".gd-utmb-distanza").value;
+    }
+    if(block._traccia && block._traccia.length > 1) scheda.traccia = block._traccia;
+    return scheda;
+  }).filter(s => s.label || s.durata || s.dislivello); // scarta blocchi lasciati vuoti
+}
 
 
 
@@ -2428,41 +2663,45 @@ function decimate(points, maxPoints){
   return out;
 }
 
+// interpreta il contenuto testuale di un file GPX e restituisce coordinate, distanza e dislivello
+function parseGpxXmlText(xmlText){
+  const xml = new DOMParser().parseFromString(xmlText, "application/xml");
+  if(xml.querySelector("parsererror")) throw new Error("XML non valido");
+  const trkpts = Array.from(xml.querySelectorAll("trkpt, rtept"));
+  if(trkpts.length === 0) throw new Error("Nessun punto trovato nel file GPX");
+
+  const rawPoints = trkpts.map(pt => ({
+    lat: parseFloat(pt.getAttribute("lat")),
+    lng: parseFloat(pt.getAttribute("lon")),
+    ele: pt.querySelector("ele") ? parseFloat(pt.querySelector("ele").textContent) : null
+  }));
+
+  let dislivelloPos = 0;
+  const hasEle = rawPoints.every(p => p.ele !== null && !isNaN(p.ele));
+  if(hasEle){
+    for(let i=1; i<rawPoints.length; i++){
+      const diff = rawPoints[i].ele - rawPoints[i-1].ele;
+      if(diff > 0) dislivelloPos += diff;
+    }
+  }
+
+  let distanza = 0;
+  for(let i=1; i<rawPoints.length; i++){
+    distanza += haversine([rawPoints[i-1].lat, rawPoints[i-1].lng], [rawPoints[i].lat, rawPoints[i].lng]);
+  }
+
+  const coords = decimate(rawPoints.map(p => [p.lat, p.lng]), 200);
+  return { coords, distanzaKm: distanza/1000, dislivelloPos, hasEle, trkptCount: trkpts.length };
+}
+
 document.getElementById("f-gpx").addEventListener("change", (e)=>{
   const file = e.target.files[0];
   if(!file) return;
   const reader = new FileReader();
   reader.onload = (evt)=>{
     try {
-      const xml = new DOMParser().parseFromString(evt.target.result, "application/xml");
-      if(xml.querySelector("parsererror")) throw new Error("XML non valido");
-      const trkpts = Array.from(xml.querySelectorAll("trkpt, rtept"));
-      if(trkpts.length === 0) throw new Error("Nessun punto trovato nel file GPX");
-
-      const rawPoints = trkpts.map(pt => ({
-        lat: parseFloat(pt.getAttribute("lat")),
-        lng: parseFloat(pt.getAttribute("lon")),
-        ele: pt.querySelector("ele") ? parseFloat(pt.querySelector("ele").textContent) : null
-      }));
-
-      // dislivello positivo totale, se le elevazioni sono presenti
-      let dislivelloPos = 0;
-      let hasEle = rawPoints.every(p => p.ele !== null && !isNaN(p.ele));
-      if(hasEle){
-        for(let i=1; i<rawPoints.length; i++){
-          const diff = rawPoints[i].ele - rawPoints[i-1].ele;
-          if(diff > 0) dislivelloPos += diff;
-        }
-      }
-
-      // distanza totale approssimativa
-      let distanza = 0;
-      for(let i=1; i<rawPoints.length; i++){
-        distanza += haversine([rawPoints[i-1].lat, rawPoints[i-1].lng], [rawPoints[i].lat, rawPoints[i].lng]);
-      }
-
-      const coords = rawPoints.map(p => [p.lat, p.lng]);
-      parsedTraccia = decimate(coords, 200);
+      const { coords, distanzaKm, dislivelloPos, hasEle, trkptCount } = parseGpxXmlText(evt.target.result);
+      parsedTraccia = coords;
 
       // precompila dislivello se il campo è vuoto (escursioni e gare)
       const dislivelloInput = document.getElementById("f-dislivello");
@@ -2475,12 +2714,12 @@ document.getElementById("f-gpx").addEventListener("change", (e)=>{
       }
       const garaLunghezzaInput = document.getElementById("f-gara-lunghezza");
       if(!garaLunghezzaInput.value.trim()){
-        garaLunghezzaInput.value = `${(distanza/1000).toFixed(1)} km`;
+        garaLunghezzaInput.value = `${distanzaKm.toFixed(1)} km`;
       }
       // precompila posizione di partenza dal file GPX (sovrascrive quella del comune)
       setPickedLocation(coords[0][0], coords[0][1], "dal file GPX");
 
-      const info = `${(distanza/1000).toFixed(1)} km · ${trkpts.length} punti originali` +
+      const info = `${distanzaKm.toFixed(1)} km · ${trkptCount} punti originali` +
         (hasEle ? ` · dislivello positivo stimato ${Math.round(dislivelloPos)} m` : "");
       showTrackPreview(parsedTraccia, info);
 
@@ -2572,26 +2811,36 @@ document.getElementById("add-form").addEventListener("submit", async e=>{
   } else if(tipo === "moto"){
     entry.giorni = collectMotoDays();
   } else if(tipo === "gara"){
-    const dislivello = document.getElementById("f-gara-dislivello").value.trim();
-    const lunghezza = document.getElementById("f-gara-lunghezza").value.trim();
-    const arrivo = document.getElementById("f-arrivo").value.trim();
-    const data = document.getElementById("f-gara-data").value.trim();
-    let anno = document.getElementById("f-gara-anno").value.trim();
-    if(!anno && data) anno = data.slice(0, 4); // deduce l'anno dalla data, se non specificato a parte
-    if(dislivello) entry.dislivello = dislivello;
-    if(lunghezza) entry.durata = lunghezza;
-    if(arrivo) entry.arrivo = arrivo;
-    if(data) entry.data = data;
-    if(anno) entry.anno = anno;
-    const isUtmb = document.getElementById("f-gara-utmb").checked;
-    if(isUtmb){
-      entry.utmb = true;
-      entry.utmbDistanza = document.getElementById("f-gara-utmb-distanza").value;
+    const isMulti = document.getElementById("f-gara-multi").checked;
+    if(isMulti){
+      const distanze = collectGaraDistanze();
+      if(distanze.length === 0){
+        alert("Aggiungi almeno una scheda distanza (con nome, lunghezza o dislivello) oppure disattiva \"più distanze\".");
+        return;
+      }
+      entry.distanze = distanze;
+    } else {
+      const dislivello = document.getElementById("f-gara-dislivello").value.trim();
+      const lunghezza = document.getElementById("f-gara-lunghezza").value.trim();
+      const arrivo = document.getElementById("f-arrivo").value.trim();
+      const data = document.getElementById("f-gara-data").value.trim();
+      let anno = document.getElementById("f-gara-anno").value.trim();
+      if(!anno && data) anno = data.slice(0, 4); // deduce l'anno dalla data, se non specificato a parte
+      if(dislivello) entry.dislivello = dislivello;
+      if(lunghezza) entry.durata = lunghezza;
+      if(arrivo) entry.arrivo = arrivo;
+      if(data) entry.data = data;
+      if(anno) entry.anno = anno;
+      const isUtmb = document.getElementById("f-gara-utmb").checked;
+      if(isUtmb){
+        entry.utmb = true;
+        entry.utmbDistanza = document.getElementById("f-gara-utmb-distanza").value;
+      }
     }
   }
   // per "poi" non salviamo altro: solo nome, luogo (comune/regione/coordinate) e foto
 
-  if(tipo === "escursione" || tipo === "moto" || tipo === "gara"){
+  if(tipo === "escursione" || tipo === "moto" || (tipo === "gara" && !entry.distanze)){
     if(parsedTraccia){
       entry.traccia = parsedTraccia; // nuova traccia caricata: sostituisce quella precedente
     } else if(isEditing && editingOriginalItem && editingOriginalItem.traccia){
@@ -2797,6 +3046,50 @@ document.getElementById("list-modal").addEventListener("click", (e) => {
 let listGareSortKey = "data";
 let listGareSortDir = 1;
 
+// una gara "semplice" produce 1 riga; una gara con più distanze produce 1 riga per scheda
+function flattenGaraItem(it){
+  const paese = getPaese(it);
+  if(Array.isArray(it.distanze) && it.distanze.length){
+    return it.distanze.map(d => ({
+      parent: it,
+      nome: d.label ? `${it.nome} — ${d.label}` : it.nome,
+      label: d.label || "",
+      data: d.data || it.data || "",
+      anno: d.data ? d.data.slice(0,4) : (d.anno || it.anno || ""),
+      comune: it.comune,
+      arrivo: d.arrivo || it.arrivo || "",
+      regione: it.regione,
+      paese,
+      durata: d.durata || "",
+      dislivello: d.dislivello || "",
+      dislivelloNum: parseDislivelloNum(d.dislivello),
+      utmb: !!d.utmb,
+      utmbDistanza: d.utmb ? (d.utmbDistanza || "") : "",
+      hasTraccia: !!(d.traccia && d.traccia.length > 1)
+    }));
+  }
+  return [{
+    parent: it,
+    nome: it.nome,
+    label: "",
+    data: it.data || "",
+    anno: it.anno || (it.data ? it.data.slice(0,4) : ""),
+    comune: it.comune,
+    arrivo: it.arrivo || "",
+    regione: it.regione,
+    paese,
+    durata: it.durata || "",
+    dislivello: it.dislivello || "",
+    dislivelloNum: parseDislivelloNum(it.dislivello),
+    utmb: !!it.utmb,
+    utmbDistanza: it.utmb ? (it.utmbDistanza || "") : "",
+    hasTraccia: !!(it.traccia && it.traccia.length > 1)
+  }];
+}
+function allGaraRows(){
+  return ITEMS.filter(it => it.tipo === "gara" && !isTripItem(it)).flatMap(flattenGaraItem);
+}
+
 function openListaGare(){
   const paeseSel = document.getElementById("list-filter-paese-gara");
   const paeseCurrent = paeseSel.value || "tutti";
@@ -2818,8 +3111,7 @@ function openListaGare(){
   const annoSel = document.getElementById("list-filter-anno-gara");
   const annoCurrent = annoSel.value || "tutti";
   const anniPresenti = Array.from(new Set(
-    ITEMS.filter(it=>it.tipo==="gara" && !isTripItem(it) && (it.anno || (it.data && it.data.slice(0,4))))
-      .map(it => String(it.anno || it.data.slice(0,4)))
+    allGaraRows().filter(r => r.anno).map(r => String(r.anno))
   )).sort((a,b)=> b.localeCompare(a));
   annoSel.innerHTML = '<option value="tutti">Tutti gli anni</option>';
   anniPresenti.forEach(a=>{ const o=document.createElement("option"); o.value=a; o.textContent=a; annoSel.appendChild(o); });
@@ -2838,19 +3130,17 @@ function renderListaGare(){
   const onlyGpx = document.getElementById("list-filter-gpx-gara").checked;
   const q = document.getElementById("list-filter-q-gara").value.trim().toLowerCase();
 
-  let items = ITEMS.filter(it => it.tipo === "gara" && !isTripItem(it));
-  if(paese !== "tutti") items = items.filter(it => getPaese(it) === paese);
-  if(regione !== "tutte") items = items.filter(it => it.regione === regione);
-  if(anno !== "tutti") items = items.filter(it => String(it.anno || (it.data ? it.data.slice(0,4) : "")) === anno);
-  if(utmb === "si") items = items.filter(it => it.utmb);
-  else if(utmb !== "tutte") items = items.filter(it => it.utmb && it.utmbDistanza === utmb);
-  if(onlyGpx) items = items.filter(it => it.traccia && it.traccia.length > 1);
-  if(q) items = items.filter(it => `${it.nome} ${it.comune || ""} ${it.arrivo || ""}`.toLowerCase().includes(q));
-
-  items = items.map(it => Object.assign({}, it, { dislivelloNum: parseDislivelloNum(it.dislivello), paese: getPaese(it) }));
+  let rows = allGaraRows();
+  if(paese !== "tutti") rows = rows.filter(r => r.paese === paese);
+  if(regione !== "tutte") rows = rows.filter(r => r.regione === regione);
+  if(anno !== "tutti") rows = rows.filter(r => String(r.anno) === anno);
+  if(utmb === "si") rows = rows.filter(r => r.utmb);
+  else if(utmb !== "tutte") rows = rows.filter(r => r.utmb && r.utmbDistanza === utmb);
+  if(onlyGpx) rows = rows.filter(r => r.hasTraccia || (r.parent.traccia && r.parent.traccia.length > 1));
+  if(q) rows = rows.filter(r => `${r.nome} ${r.comune || ""} ${r.arrivo || ""}`.toLowerCase().includes(q));
 
   const dir = listGareSortDir;
-  items.sort((a, b) => {
+  rows.sort((a, b) => {
     if(listGareSortKey === "dislivelloNum"){
       const va = a.dislivelloNum === null ? -Infinity : a.dislivelloNum;
       const vb = b.dislivelloNum === null ? -Infinity : b.dislivelloNum;
@@ -2861,29 +3151,30 @@ function renderListaGare(){
     return va.localeCompare(vb) * dir;
   });
 
-  document.getElementById("list-result-count-gara").textContent = `${items.length} gar${items.length === 1 ? "a" : "e"}`;
+  document.getElementById("list-result-count-gara").textContent = `${rows.length} scheda${rows.length === 1 ? "" : "e"}`;
 
   const tbody = document.getElementById("list-table-body-gara");
   tbody.innerHTML = "";
-  if(items.length === 0){
+  if(rows.length === 0){
     tbody.innerHTML = `<tr><td colspan="10" class="empty-state">Nessuna gara trovata con questi filtri.</td></tr>`;
     return;
   }
-  items.forEach(it => {
+  rows.forEach(r => {
     const tr = document.createElement("tr");
+    const hasGpx = r.hasTraccia || (r.parent.traccia && r.parent.traccia.length > 1 && !r.label);
     tr.innerHTML = `
-      <td>${escapeHtml(it.nome)}</td>
-      <td>${escapeHtml(it.data ? formatDataItaliana(it.data) : (it.anno ? String(it.anno) : "—"))}</td>
-      <td>${escapeHtml(it.comune || "—")}</td>
-      <td>${escapeHtml(it.arrivo || "—")}</td>
-      <td>${escapeHtml(it.regione || "—")}</td>
-      <td>${escapeHtml(it.paese || "—")}</td>
-      <td>${escapeHtml(it.durata || "—")}</td>
-      <td>${escapeHtml(it.dislivello || "—")}</td>
-      <td>${it.utmb ? "🏔 " + escapeHtml(it.utmbDistanza || "") : "—"}</td>
-      <td>${it.traccia && it.traccia.length > 1 ? "✓" : "—"}</td>
+      <td>${escapeHtml(r.nome)}</td>
+      <td>${escapeHtml(r.data ? formatDataItaliana(r.data) : (r.anno ? String(r.anno) : "—"))}</td>
+      <td>${escapeHtml(r.comune || "—")}</td>
+      <td>${escapeHtml(r.arrivo || "—")}</td>
+      <td>${escapeHtml(r.regione || "—")}</td>
+      <td>${escapeHtml(r.paese || "—")}</td>
+      <td>${escapeHtml(r.durata || "—")}</td>
+      <td>${escapeHtml(r.dislivello || "—")}</td>
+      <td>${r.utmb ? "🏔 " + escapeHtml(r.utmbDistanza || "") : "—"}</td>
+      <td>${hasGpx ? "✓" : "—"}</td>
     `;
-    tr.addEventListener("click", () => { closeListaGare(); openDetailModal(it); });
+    tr.addEventListener("click", () => { closeListaGare(); openDetailModal(r.parent); });
     tbody.appendChild(tr);
   });
 }
