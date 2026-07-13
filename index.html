@@ -1030,6 +1030,17 @@ button.submit:hover { background: #2b2f38; }
         <input type="text" id="f-arrivo" placeholder="Es. Courmayeur">
         <p class="desc">Lascia vuoto se la gara è ad anello, con arrivo nello stesso luogo della partenza (indicata nel campo "Comune di partenza" qui sopra).</p>
       </div>
+      <div class="field" id="gara-utmb-field" hidden>
+        <label class="list-checkbox"><input type="checkbox" id="f-gara-utmb"> Gara qualificante UTMB</label>
+        <div class="field" id="gara-utmb-distanza-wrap" style="margin-top:0.7rem;" hidden>
+          <label for="f-gara-utmb-distanza">Distanza di qualifica</label>
+          <select id="f-gara-utmb-distanza">
+            <option value="20K">20K</option>
+            <option value="50K">50K</option>
+            <option value="100K">100K</option>
+          </select>
+        </div>
+      </div>
 
       <div class="field" id="gpx-field" hidden>
         <label for="f-gpx">Traccia GPX (facoltativa)</label>
@@ -1125,6 +1136,13 @@ button.submit:hover { background: #2b2f38; }
         <select id="list-filter-paese-gara"><option value="tutti">Tutti i paesi</option></select>
         <select id="list-filter-regione-gara"><option value="tutte">Tutte le regioni</option></select>
         <select id="list-filter-anno-gara"><option value="tutti">Tutti gli anni</option></select>
+        <select id="list-filter-utmb-gara">
+          <option value="tutte">UTMB: tutte</option>
+          <option value="si">Solo qualificanti UTMB</option>
+          <option value="20K">Qualificanti 20K</option>
+          <option value="50K">Qualificanti 50K</option>
+          <option value="100K">Qualificanti 100K</option>
+        </select>
         <label class="list-checkbox"><input type="checkbox" id="list-filter-gpx-gara"> Solo con traccia GPX</label>
         <input type="search" id="list-filter-q-gara" placeholder="Cerca per nome, partenza o arrivo…">
         <span class="count-label" id="list-result-count-gara"></span>
@@ -1141,6 +1159,7 @@ button.submit:hover { background: #2b2f38; }
               <th data-sort="paese">Paese</th>
               <th data-sort="durata">Lunghezza</th>
               <th data-sort="dislivelloNum">Dislivello</th>
+              <th data-sort="utmbDistanza">UTMB</th>
               <th>GPX</th>
             </tr>
           </thead>
@@ -1231,6 +1250,9 @@ button.submit:hover { background: #2b2f38; }
    - data: solo per "gara", data in formato ISO "AAAA-MM-GG" (facoltativa)
    - anno: solo per "gara", anno/edizione della gara, testo o numero (facoltativo;
      se non indicato ma è presente "data", viene dedotto automaticamente da quella)
+   - utmb: solo per "gara", booleano (true se la gara è qualificante per l'UTMB,
+     assente/false altrimenti)
+   - utmbDistanza: solo per "gara" con utmb=true, "20K" | "50K" | "100K"
    - traccia: per "escursione", "moto" e "gara", array di coppie [lat, lng] che disegna
      il percorso sulla mappa (facoltativo). Generato automaticamente se
      carichi un file GPX dal modulo "Aggiungi voce".
@@ -1351,6 +1373,7 @@ function extraInfoHtml(it){
         ${it.data ? `<span>📅 ${escapeHtml(formatDataItaliana(it.data))}</span>` : (it.anno ? `<span>📅 Edizione ${escapeHtml(String(it.anno))}</span>` : "")}
         ${it.dislivello ? `<span>⬆ ${escapeHtml(it.dislivello)}</span>` : ""}
         ${it.arrivo ? `<span>🏁 Arrivo: ${escapeHtml(it.arrivo)}</span>` : ""}
+        ${it.utmb ? `<span>🏔 Qualificante UTMB — ${escapeHtml(it.utmbDistanza || "")}</span>` : ""}
         ${it.traccia && it.traccia.length ? `<span>📍 Traccia GPX disponibile</span>` : ""}
       </div>`;
   }
@@ -1442,6 +1465,7 @@ function openDetailModal(it){
   if(it.tipo === "gara" && it.data) stats.push(["Data", formatDataItaliana(it.data)]);
   if(it.tipo === "gara" && !it.data && it.anno) stats.push(["Anno", String(it.anno)]);
   if(it.tipo === "gara" && it.data && it.anno && it.anno !== it.data.slice(0,4)) stats.push(["Anno/edizione", String(it.anno)]);
+  if(it.tipo === "gara" && it.utmb) stats.push(["Qualifica UTMB", it.utmbDistanza || "Sì"]);
   if(it.comune) stats.push(["Partenza", it.comune]);
   stats.push(["Regione", it.regione]);
   if(getPaese(it) !== "Italia") stats.push(["Paese", getPaese(it)]);
@@ -2210,6 +2234,9 @@ function resetFormToCreateMode(){
   document.getElementById("gara-fields").hidden = true;
   document.getElementById("gara-data-fields").hidden = true;
   document.getElementById("gara-arrivo-field").hidden = true;
+  document.getElementById("gara-utmb-field").hidden = true;
+  document.getElementById("f-gara-utmb").checked = false;
+  document.getElementById("gara-utmb-distanza-wrap").hidden = true;
   document.getElementById("gpx-field").hidden = true;
   document.getElementById("moto-fields").hidden = true;
   document.getElementById("moto-days-container").innerHTML = "";
@@ -2251,6 +2278,9 @@ function openEditForm(it){
   document.getElementById("f-gara-data").value = it.data || "";
   document.getElementById("f-gara-anno").value = it.anno || "";
   document.getElementById("f-arrivo").value = it.arrivo || "";
+  document.getElementById("f-gara-utmb").checked = !!it.utmb;
+  document.getElementById("gara-utmb-distanza-wrap").hidden = !it.utmb;
+  document.getElementById("f-gara-utmb-distanza").value = it.utmbDistanza || "20K";
 
   document.getElementById("f-viaggio").value = it.viaggio || "";
 
@@ -2323,6 +2353,7 @@ document.getElementById("f-tipo").addEventListener("change", (e)=>{
   document.getElementById("gara-fields").hidden = !isGara;
   document.getElementById("gara-data-fields").hidden = !isGara;
   document.getElementById("gara-arrivo-field").hidden = !isGara;
+  document.getElementById("gara-utmb-field").hidden = !isGara;
   document.getElementById("gpx-field").hidden = !(isEscursione || isMoto || isGara);
   document.getElementById("moto-fields").hidden = !isMoto;
 
@@ -2332,6 +2363,10 @@ document.getElementById("f-tipo").addEventListener("change", (e)=>{
   if(isMoto && document.getElementById("moto-days-container").children.length === 0){
     renderMotoDayBlocks(parseInt(document.getElementById("f-giorni-count").value, 10));
   }
+});
+
+document.getElementById("f-gara-utmb").addEventListener("change", (e)=>{
+  document.getElementById("gara-utmb-distanza-wrap").hidden = !e.target.checked;
 });
 
 
@@ -2548,6 +2583,11 @@ document.getElementById("add-form").addEventListener("submit", async e=>{
     if(arrivo) entry.arrivo = arrivo;
     if(data) entry.data = data;
     if(anno) entry.anno = anno;
+    const isUtmb = document.getElementById("f-gara-utmb").checked;
+    if(isUtmb){
+      entry.utmb = true;
+      entry.utmbDistanza = document.getElementById("f-gara-utmb-distanza").value;
+    }
   }
   // per "poi" non salviamo altro: solo nome, luogo (comune/regione/coordinate) e foto
 
@@ -2794,6 +2834,7 @@ function renderListaGare(){
   const paese = document.getElementById("list-filter-paese-gara").value;
   const regione = document.getElementById("list-filter-regione-gara").value;
   const anno = document.getElementById("list-filter-anno-gara").value;
+  const utmb = document.getElementById("list-filter-utmb-gara").value;
   const onlyGpx = document.getElementById("list-filter-gpx-gara").checked;
   const q = document.getElementById("list-filter-q-gara").value.trim().toLowerCase();
 
@@ -2801,6 +2842,8 @@ function renderListaGare(){
   if(paese !== "tutti") items = items.filter(it => getPaese(it) === paese);
   if(regione !== "tutte") items = items.filter(it => it.regione === regione);
   if(anno !== "tutti") items = items.filter(it => String(it.anno || (it.data ? it.data.slice(0,4) : "")) === anno);
+  if(utmb === "si") items = items.filter(it => it.utmb);
+  else if(utmb !== "tutte") items = items.filter(it => it.utmb && it.utmbDistanza === utmb);
   if(onlyGpx) items = items.filter(it => it.traccia && it.traccia.length > 1);
   if(q) items = items.filter(it => `${it.nome} ${it.comune || ""} ${it.arrivo || ""}`.toLowerCase().includes(q));
 
@@ -2823,7 +2866,7 @@ function renderListaGare(){
   const tbody = document.getElementById("list-table-body-gara");
   tbody.innerHTML = "";
   if(items.length === 0){
-    tbody.innerHTML = `<tr><td colspan="9" class="empty-state">Nessuna gara trovata con questi filtri.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10" class="empty-state">Nessuna gara trovata con questi filtri.</td></tr>`;
     return;
   }
   items.forEach(it => {
@@ -2837,6 +2880,7 @@ function renderListaGare(){
       <td>${escapeHtml(it.paese || "—")}</td>
       <td>${escapeHtml(it.durata || "—")}</td>
       <td>${escapeHtml(it.dislivello || "—")}</td>
+      <td>${it.utmb ? "🏔 " + escapeHtml(it.utmbDistanza || "") : "—"}</td>
       <td>${it.traccia && it.traccia.length > 1 ? "✓" : "—"}</td>
     `;
     tr.addEventListener("click", () => { closeListaGare(); openDetailModal(it); });
@@ -2862,7 +2906,7 @@ document.querySelectorAll("#list-table-gara thead th[data-sort]").forEach(th => 
 });
 updateListGareSortIndicators();
 
-["list-filter-regione-gara", "list-filter-anno-gara", "list-filter-gpx-gara"].forEach(id => {
+["list-filter-regione-gara", "list-filter-anno-gara", "list-filter-utmb-gara", "list-filter-gpx-gara"].forEach(id => {
   document.getElementById(id).addEventListener("change", renderListaGare);
 });
 document.getElementById("list-filter-paese-gara").addEventListener("change", () => {
