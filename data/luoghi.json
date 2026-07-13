@@ -8837,6 +8837,8 @@
     "arrivo": "Cortina d'Ampezzo",
     "data": "2027-06-25",
     "anno": "2027",
+    "utmb": true,
+    "utmbDistanza": "50K",
     "traccia": [
       [
         46.53740298002958,
