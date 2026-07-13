@@ -1115,6 +1115,42 @@ button.submit:hover { background: #2b2f38; }
   </div>
 </div>
 
+<div class="modal-backdrop" id="list-modal-gare" hidden>
+  <div class="modal-box detail-box">
+    <button type="button" class="lightbox-close detail-close" id="list-modal-gare-close-btn">✕</button>
+    <div class="detail-inner">
+      <h3>Lista Trail</h3>
+      <p class="hint">Filtra e ordina tutte le gare di trail running salvate. Clicca un'intestazione di colonna per ordinare, clicca una riga per aprirne la scheda.</p>
+      <div class="list-modal-controls">
+        <select id="list-filter-paese-gara"><option value="tutti">Tutti i paesi</option></select>
+        <select id="list-filter-regione-gara"><option value="tutte">Tutte le regioni</option></select>
+        <select id="list-filter-anno-gara"><option value="tutti">Tutti gli anni</option></select>
+        <label class="list-checkbox"><input type="checkbox" id="list-filter-gpx-gara"> Solo con traccia GPX</label>
+        <input type="search" id="list-filter-q-gara" placeholder="Cerca per nome, partenza o arrivo…">
+        <span class="count-label" id="list-result-count-gara"></span>
+      </div>
+      <div class="list-table-wrap">
+        <table class="list-table" id="list-table-gara">
+          <thead>
+            <tr>
+              <th data-sort="nome">Nome</th>
+              <th data-sort="data">Data</th>
+              <th data-sort="comune">Partenza</th>
+              <th data-sort="arrivo">Arrivo</th>
+              <th data-sort="regione">Regione</th>
+              <th data-sort="paese">Paese</th>
+              <th data-sort="durata">Lunghezza</th>
+              <th data-sort="dislivelloNum">Dislivello</th>
+              <th>GPX</th>
+            </tr>
+          </thead>
+          <tbody id="list-table-body-gara"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="detail-modal" hidden>
   <div class="modal-box detail-box">
     <button type="button" class="lightbox-close detail-close" id="detail-close-btn">✕</button>
@@ -1589,6 +1625,7 @@ document.querySelectorAll(".section-view").forEach(view => {
       <h1>${view.dataset.title}</h1>
       <p class="lead">${view.dataset.lead}</p>
       ${tipo === "escursione" ? `<button type="button" class="btn-list-view" id="btn-lista-escursioni">📋 Lista escursioni</button>` : ""}
+      ${tipo === "gara" ? `<button type="button" class="btn-list-view" id="btn-lista-gare">📋 Lista Trail</button>` : ""}
     </div>
     <div class="map-wrap"><div id="map-${tipo}"></div></div>
     <section class="controls">
@@ -1604,6 +1641,10 @@ document.querySelectorAll(".section-view").forEach(view => {
   if(tipo === "escursione"){
     const listBtn = view.querySelector("#btn-lista-escursioni");
     if(listBtn) listBtn.addEventListener("click", openListaEscursioni);
+  }
+  if(tipo === "gara"){
+    const listBtn = view.querySelector("#btn-lista-gare");
+    if(listBtn) listBtn.addEventListener("click", openListaGare);
   }
 
   sectionState[tipo] = { tipo: tipo, items: ITEMS.filter(it=>it.tipo===tipo && !isTripItem(it)), mapInit:false, map:null, layer:null };
@@ -2710,6 +2751,136 @@ document.getElementById("list-filter-q").addEventListener("input", renderListaEs
 document.getElementById("list-modal-close-btn").addEventListener("click", closeListaEscursioni);
 document.getElementById("list-modal").addEventListener("click", (e) => {
   if(e.target.id === "list-modal") closeListaEscursioni();
+});
+
+// --- lista Trail (gare) ---
+let listGareSortKey = "data";
+let listGareSortDir = 1;
+
+function openListaGare(){
+  const paeseSel = document.getElementById("list-filter-paese-gara");
+  const paeseCurrent = paeseSel.value || "tutti";
+  const paesiPresenti = Array.from(new Set(ITEMS.filter(it=>it.tipo==="gara" && !isTripItem(it)).map(it=>getPaese(it))));
+  paesiPresenti.sort((a,b) => a === "Italia" ? -1 : b === "Italia" ? 1 : a.localeCompare(b));
+  paeseSel.innerHTML = '<option value="tutti">Tutti i paesi</option>';
+  paesiPresenti.forEach(p=>{ const o=document.createElement("option"); o.value=p; o.textContent=p; paeseSel.appendChild(o); });
+  paeseSel.value = paesiPresenti.includes(paeseCurrent) ? paeseCurrent : "tutti";
+
+  const regSel = document.getElementById("list-filter-regione-gara");
+  const regCurrent = regSel.value || "tutte";
+  const regioniPresenti = Array.from(new Set(
+    ITEMS.filter(it=>it.tipo==="gara" && !isTripItem(it) && (paeseSel.value==="tutti" || getPaese(it)===paeseSel.value)).map(it=>it.regione)
+  )).sort();
+  regSel.innerHTML = '<option value="tutte">Tutte le regioni</option>';
+  regioniPresenti.forEach(r=>{ const o=document.createElement("option"); o.value=r; o.textContent=r; regSel.appendChild(o); });
+  regSel.value = regioniPresenti.includes(regCurrent) ? regCurrent : "tutte";
+
+  const annoSel = document.getElementById("list-filter-anno-gara");
+  const annoCurrent = annoSel.value || "tutti";
+  const anniPresenti = Array.from(new Set(
+    ITEMS.filter(it=>it.tipo==="gara" && !isTripItem(it) && (it.anno || (it.data && it.data.slice(0,4))))
+      .map(it => String(it.anno || it.data.slice(0,4)))
+  )).sort((a,b)=> b.localeCompare(a));
+  annoSel.innerHTML = '<option value="tutti">Tutti gli anni</option>';
+  anniPresenti.forEach(a=>{ const o=document.createElement("option"); o.value=a; o.textContent=a; annoSel.appendChild(o); });
+  annoSel.value = anniPresenti.includes(annoCurrent) ? annoCurrent : "tutti";
+
+  renderListaGare();
+  document.getElementById("list-modal-gare").hidden = false;
+}
+function closeListaGare(){ document.getElementById("list-modal-gare").hidden = true; }
+
+function renderListaGare(){
+  const paese = document.getElementById("list-filter-paese-gara").value;
+  const regione = document.getElementById("list-filter-regione-gara").value;
+  const anno = document.getElementById("list-filter-anno-gara").value;
+  const onlyGpx = document.getElementById("list-filter-gpx-gara").checked;
+  const q = document.getElementById("list-filter-q-gara").value.trim().toLowerCase();
+
+  let items = ITEMS.filter(it => it.tipo === "gara" && !isTripItem(it));
+  if(paese !== "tutti") items = items.filter(it => getPaese(it) === paese);
+  if(regione !== "tutte") items = items.filter(it => it.regione === regione);
+  if(anno !== "tutti") items = items.filter(it => String(it.anno || (it.data ? it.data.slice(0,4) : "")) === anno);
+  if(onlyGpx) items = items.filter(it => it.traccia && it.traccia.length > 1);
+  if(q) items = items.filter(it => `${it.nome} ${it.comune || ""} ${it.arrivo || ""}`.toLowerCase().includes(q));
+
+  items = items.map(it => Object.assign({}, it, { dislivelloNum: parseDislivelloNum(it.dislivello), paese: getPaese(it) }));
+
+  const dir = listGareSortDir;
+  items.sort((a, b) => {
+    if(listGareSortKey === "dislivelloNum"){
+      const va = a.dislivelloNum === null ? -Infinity : a.dislivelloNum;
+      const vb = b.dislivelloNum === null ? -Infinity : b.dislivelloNum;
+      return (va - vb) * dir;
+    }
+    const va = (a[listGareSortKey] || "").toString().toLowerCase();
+    const vb = (b[listGareSortKey] || "").toString().toLowerCase();
+    return va.localeCompare(vb) * dir;
+  });
+
+  document.getElementById("list-result-count-gara").textContent = `${items.length} gar${items.length === 1 ? "a" : "e"}`;
+
+  const tbody = document.getElementById("list-table-body-gara");
+  tbody.innerHTML = "";
+  if(items.length === 0){
+    tbody.innerHTML = `<tr><td colspan="9" class="empty-state">Nessuna gara trovata con questi filtri.</td></tr>`;
+    return;
+  }
+  items.forEach(it => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${escapeHtml(it.nome)}</td>
+      <td>${escapeHtml(it.data ? formatDataItaliana(it.data) : (it.anno ? String(it.anno) : "—"))}</td>
+      <td>${escapeHtml(it.comune || "—")}</td>
+      <td>${escapeHtml(it.arrivo || "—")}</td>
+      <td>${escapeHtml(it.regione || "—")}</td>
+      <td>${escapeHtml(it.paese || "—")}</td>
+      <td>${escapeHtml(it.durata || "—")}</td>
+      <td>${escapeHtml(it.dislivello || "—")}</td>
+      <td>${it.traccia && it.traccia.length > 1 ? "✓" : "—"}</td>
+    `;
+    tr.addEventListener("click", () => { closeListaGare(); openDetailModal(it); });
+    tbody.appendChild(tr);
+  });
+}
+
+function updateListGareSortIndicators(){
+  document.querySelectorAll("#list-table-gara thead th[data-sort]").forEach(th => {
+    th.classList.remove("sorted-asc", "sorted-desc");
+    if(th.dataset.sort === listGareSortKey) th.classList.add(listGareSortDir === 1 ? "sorted-asc" : "sorted-desc");
+  });
+}
+
+document.querySelectorAll("#list-table-gara thead th[data-sort]").forEach(th => {
+  th.addEventListener("click", () => {
+    const key = th.dataset.sort;
+    if(listGareSortKey === key) listGareSortDir *= -1;
+    else { listGareSortKey = key; listGareSortDir = 1; }
+    renderListaGare();
+    updateListGareSortIndicators();
+  });
+});
+updateListGareSortIndicators();
+
+["list-filter-regione-gara", "list-filter-anno-gara", "list-filter-gpx-gara"].forEach(id => {
+  document.getElementById(id).addEventListener("change", renderListaGare);
+});
+document.getElementById("list-filter-paese-gara").addEventListener("change", () => {
+  const regSel = document.getElementById("list-filter-regione-gara");
+  const paeseVal = document.getElementById("list-filter-paese-gara").value;
+  const regioniPresenti = Array.from(new Set(
+    ITEMS.filter(it=>it.tipo==="gara" && !isTripItem(it) && (paeseVal==="tutti" || getPaese(it)===paeseVal)).map(it=>it.regione)
+  )).sort();
+  const current = regSel.value;
+  regSel.innerHTML = '<option value="tutte">Tutte le regioni</option>';
+  regioniPresenti.forEach(r=>{ const o=document.createElement("option"); o.value=r; o.textContent=r; regSel.appendChild(o); });
+  regSel.value = regioniPresenti.includes(current) ? current : "tutte";
+  renderListaGare();
+});
+document.getElementById("list-filter-q-gara").addEventListener("input", renderListaGare);
+document.getElementById("list-modal-gare-close-btn").addEventListener("click", closeListaGare);
+document.getElementById("list-modal-gare").addEventListener("click", (e) => {
+  if(e.target.id === "list-modal-gare") closeListaGare();
 });
 
 function openRemoveModal(it){
