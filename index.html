@@ -1669,20 +1669,22 @@ function openDetailModal(it){
       if(detailMap){ detailMap.remove(); detailMap = null; }
       detailMap = L.map("detail-map", { scrollWheelZoom: false });
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap", maxZoom: 18 }).addTo(detailMap);
-      addMarkers(detailMap, [it]);
-      const trackColors = ["#dc2626", "#1d4ed8", "#15803d", "#c2410c", "#7c3aed"];
+      // imposta subito una vista di partenza: Leaflet va in errore se si aggiungono
+      // marker/tracce a una mappa che non ha ancora una vista definita
+      const fallbackCenter = (typeof it.lat === "number" && typeof it.lng === "number") ? [it.lat, it.lng] : [45, 10];
+      detailMap.setView(fallbackCenter, 12);
+
+      addMarkers(detailMap, [it]); // disegna anche l'eventuale traccia principale (it.traccia)
+      const trackColors = ["#1d4ed8", "#15803d", "#c2410c", "#7c3aed", "#dc2626"];
       const allBoundsPoints = [];
-      if(it.traccia && it.traccia.length > 1){
-        L.polyline(it.traccia, { color: trackColors[0], weight: 4 }).addTo(detailMap);
-        allBoundsPoints.push(...it.traccia);
-      }
+      if(it.traccia && it.traccia.length > 1) allBoundsPoints.push(...it.traccia);
       distanzeConTraccia.forEach((d, i) => {
         L.polyline(d.traccia, { color: trackColors[i % trackColors.length], weight: 4 }).addTo(detailMap);
         allBoundsPoints.push(...d.traccia);
       });
       if(allBoundsPoints.length > 1){
         detailMap.fitBounds(L.latLngBounds(allBoundsPoints), { padding: [16,16] });
-      } else {
+      } else if(typeof it.lat === "number" && typeof it.lng === "number"){
         detailMap.setView([it.lat, it.lng], 12);
       }
       detailMap.invalidateSize();
@@ -2768,7 +2770,9 @@ function showTrackPreview(coords, infoText){
   const wrap = document.getElementById("gpx-preview-wrap");
   wrap.style.display = "block";
   if(!gpxPreviewMap){
-    gpxPreviewMap = L.map("gpx-preview-map", { scrollWheelZoom: false });
+    // imposta subito una vista di partenza: Leaflet va in errore se si aggiunge
+    // una traccia/polyline a una mappa che non ha ancora una vista definita
+    gpxPreviewMap = L.map("gpx-preview-map", { scrollWheelZoom: false }).setView(coords[0], 13);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap", maxZoom: 18 }).addTo(gpxPreviewMap);
   } else if(gpxPreviewLayer){
     gpxPreviewMap.removeLayer(gpxPreviewLayer);
