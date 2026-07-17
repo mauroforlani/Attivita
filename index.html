@@ -428,7 +428,7 @@ details.region[open] > summary::before { content: "–"; }
   margin-top: 0.3rem;
 }
 .modal-actions { display: flex; gap: 0.7rem; margin-top: 1.2rem; }
-.modal-actions button {
+.modal-actions button, .modal-actions a {
   font-family: var(--body);
   font-weight: 700;
   font-size: 0.88rem;
@@ -436,6 +436,9 @@ details.region[open] > summary::before { content: "–"; }
   border-radius: 999px;
   padding: 0.65rem 1.2rem;
   cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  line-height: 1.3;
 }
 .modal-actions .btn-copy { background: var(--ink); color: #fff; }
 .modal-actions .btn-close { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
@@ -822,6 +825,19 @@ footer {
   background: #fff;
   color: var(--ink);
   border-radius: var(--radius-sm);
+}
+.field input[type="checkbox"] { width: auto; padding: 0; }
+.field label.list-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--body);
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ink);
+  margin-bottom: 0.3rem;
 }
 .field input:focus, .field select:focus, .field textarea:focus {
   outline: 2px solid var(--ink);
@@ -2499,7 +2515,7 @@ function updateGaraMultiVisibility(){
     document.getElementById("gpx-field").hidden = isMulti;
   }
   if(isMulti && document.getElementById("gara-distanze-container").children.length === 0){
-    addDistanzaBlock();
+    ["20K", "50K", "100K"].forEach(label => addDistanzaBlock({ label }));
   }
 }
 
