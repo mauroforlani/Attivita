@@ -191,6 +191,16 @@ h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.01em; }
   box-shadow: var(--shadow);
 }
 .leaflet-popup-content-wrapper { border-radius: var(--radius-sm); }
+.leaflet-tooltip.map-hover-tip {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  padding: 0.5rem 0.7rem;
+  opacity: 1;
+}
+.leaflet-tooltip.map-hover-tip::before { border-top-color: var(--border); }
+.leaflet-interactive { cursor: pointer; }
 .popup-tipo {
   font-family: var(--mono);
   font-size: 0.66rem;
@@ -1390,8 +1400,11 @@ function popupHtml(it){
   return `<span class="popup-tipo" style="background:${TIPO_COLOR[it.tipo]||"#555"}">${TIPO_LABEL[it.tipo]||it.tipo}</span>
   <div class="popup-nome">${escapeHtml(it.nome)}</div>
   <div class="popup-meta">${escapeHtml(luogoLabel(it))}</div>
-  ${it.dislivello ? `<div class="popup-meta">⬆ ${escapeHtml(it.dislivello)}</div>` : ""}
-  ${it.traccia && it.traccia.length>1 ? `<div class="popup-meta"><a href="javascript:void(0)" onclick="downloadGpxById('${it.id}')">⬇ Scarica GPX</a></div>` : ""}`;
+  ${it.dislivello ? `<div class="popup-meta">⬆ ${escapeHtml(it.dislivello)}</div>` : ""}`;
+}
+function openDetailModalById(id){
+  const it = ITEMS.find(x => x.id === id);
+  if(it) openDetailModal(it);
 }
 function downloadGpxById(id){
   const it = ITEMS.find(x => x.id === id);
@@ -1402,12 +1415,14 @@ function addMarkers(map, items){
   items.forEach(it=>{
     if(it.traccia && Array.isArray(it.traccia) && it.traccia.length > 1){
       L.polyline(it.traccia, { color: TIPO_COLOR[it.tipo] || "#555", weight: 4, opacity: 0.85 })
-        .bindPopup(popupHtml(it))
+        .bindTooltip(popupHtml(it), { sticky: true, className: "map-hover-tip" })
+        .on("click", () => openDetailModal(it))
         .addTo(layer);
     }
     if(typeof it.lat!=="number"||typeof it.lng!=="number")return;
-    const m = L.marker([it.lat,it.lng],{icon:makeIcon(it.tipo)});
-    m.bindPopup(popupHtml(it));
+    const m = L.marker([it.lat,it.lng],{icon:makeIcon(it.tipo), riseOnHover: true});
+    m.bindTooltip(popupHtml(it), { direction: "top", offset: [0, -28], className: "map-hover-tip" });
+    m.on("click", () => openDetailModal(it));
     layer.addLayer(m);
   });
   return layer;
