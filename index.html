@@ -902,7 +902,6 @@ button.submit:hover { background: #2b2f38; }
       <a href="javascript:void(0)" data-view="poi">Punti di interesse</a>
       <a href="javascript:void(0)" data-view="gare">Gare Trail Running</a>
       <a href="javascript:void(0)" data-view="foto">Foto</a>
-      <a href="javascript:void(0)" data-view="viaggio-faroe-islanda">Far Öer & Islanda 2026</a>
     </div>
     <a href="javascript:void(0)" class="btn-add" data-view="add">+ Aggiungi voce</a>
   </div>
@@ -955,10 +954,6 @@ button.submit:hover { background: #2b2f38; }
 
 <div id="view-gare" class="view section-view" hidden data-tipo="gara" data-color="t-gara"
      data-title="Gare Trail Running" data-lead="Gare di trail running censite con dislivello, lunghezza, traccia GPX, link al sito e luoghi di partenza e arrivo."></div>
-
-<div id="view-viaggio-faroe-islanda" class="view trip-view" hidden
-     data-viaggio="Isole Far Öer e Islanda 2026" data-color="t-viaggio"
-     data-title="Far Öer & Islanda 2026" data-lead="Escursioni e punti di interesse per il viaggio nelle Isole Faroe e nell'Islanda centrale, in un unico tab."></div>
 
 <div id="view-foto" class="view" hidden>
   <div class="section-header">
@@ -1022,7 +1017,6 @@ button.submit:hover { background: #2b2f38; }
         <label for="f-viaggio">Viaggio (facoltativo)</label>
         <select id="f-viaggio">
           <option value="">— Nessuno —</option>
-          <option value="Isole Far Öer e Islanda 2026">Isole Far Öer e Islanda 2026</option>
         </select>
         <p class="desc">Se scegli un viaggio, la voce comparrà solo nel suo tab dedicato, non nella sezione generale (Escursioni/Motogiri/POI). Il paese si sceglie qui sopra, indipendentemente dal viaggio.</p>
       </div>
@@ -1866,7 +1860,7 @@ document.querySelectorAll(".section-view").forEach(view => {
   sectionState[tipo].render = render;
 });
 
-// --- costruzione dinamica delle viste "viaggio" (mix di tipi, es. Far Öer & Islanda 2026) ---
+// --- costruzione dinamica delle viste "viaggio" (mix di tipi, es. eventuali viaggi dedicati) ---
 const tripState = {};
 document.querySelectorAll(".trip-view").forEach(view => {
   const viewId = view.id;
@@ -1992,7 +1986,7 @@ function applyLocalPhotos(id, urls){
 function navigate(viewName){
   document.querySelectorAll(".view").forEach(v=> v.hidden = (v.id !== "view-"+viewName));
   document.querySelectorAll(".nav-links a").forEach(a=> a.classList.remove("active","t-escursione","t-moto","t-poi","t-foto","t-viaggio","t-gara"));
-  const colorMap = {escursioni:"t-escursione", motogiri:"t-moto", poi:"t-poi", foto:"t-foto", "viaggio-faroe-islanda":"t-viaggio", gare:"t-gara"};
+  const colorMap = {escursioni:"t-escursione", motogiri:"t-moto", poi:"t-poi", foto:"t-foto", gare:"t-gara"};
   if(colorMap[viewName]){
     const link = document.querySelector(`.nav-links a[data-view="${viewName}"]`);
     if(link) link.classList.add("active", colorMap[viewName]);
