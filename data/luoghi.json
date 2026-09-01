@@ -14840,5 +14840,24 @@
         ]
       }
     ]
+  },
+  {
+    "id": "capanna-sciora-mtigi0wa",
+    "tipo": "escursione",
+    "nome": "Capanna Sciora",
+    "paese": "Svizzera",
+    "regione": "Grigioni",
+    "comune": "Bondo",
+    "lat": 46.3348819,
+    "lng": 9.5546105,
+    "link": "https://capannasciora.ch/it/",
+    "descrizione": "Nuovo sentiero panoramico, con i suoi quattro spettacolari ponti sospesi, attraversa un paesaggio alpino mozzafiato e offre viste indimenticabili sulle maestose cime",
+    "difficolta": "Media",
+    "durata": "8.4Km",
+    "dislivello": "1400",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/capanna-sciora-mtigi0wa-1-mtigi0x3.jpg",
+      "https://raw.githubusercontent.com/mauroforlani/attivita/main/images/capanna-sciora-mtigi0wa-2-mtigi2a6.jpg"
+    ]
   }
 ]
