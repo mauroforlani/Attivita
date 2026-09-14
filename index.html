@@ -631,6 +631,20 @@ details.region[open] > summary::before { content: "–"; }
 .list-table tbody tr { cursor: pointer; }
 .list-table tbody tr:hover { background: var(--surface); }
 .list-table tbody td.empty-state { text-align: center; padding: 2rem; white-space: normal; }
+.list-table tbody tr.list-group-row { cursor: default; }
+.list-table tbody tr.list-group-row:hover { background: none; }
+.list-table tbody tr.list-group-row td {
+  background: var(--surface);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ink);
+  border-bottom: 1px solid var(--border);
+  white-space: normal;
+}
+.list-table tbody tr.list-group-row td .count-label { text-transform: none; font-weight: 400; letter-spacing: normal; margin-left: 0.4rem; }
 
 /* --- thumbnail foto nelle card --- */
 .card-photos {
@@ -1205,6 +1219,7 @@ button.submit:hover { background: #2b2f38; }
           <option value="100K">Qualificanti 100K</option>
         </select>
         <label class="list-checkbox"><input type="checkbox" id="list-filter-gpx-gara"> Solo con traccia GPX</label>
+        <label class="list-checkbox"><input type="checkbox" id="list-filter-mese-gara"> 📅 Raggruppa per mese</label>
         <input type="search" id="list-filter-q-gara" placeholder="Cerca per nome, partenza o arrivo…">
         <span class="count-label" id="list-result-count-gara"></span>
       </div>
@@ -3151,23 +3166,23 @@ function openListaGare(){
 }
 function closeListaGare(){ document.getElementById("list-modal-gare").hidden = true; }
 
-function renderListaGare(){
-  const paese = document.getElementById("list-filter-paese-gara").value;
-  const regione = document.getElementById("list-filter-regione-gara").value;
-  const anno = document.getElementById("list-filter-anno-gara").value;
-  const utmb = document.getElementById("list-filter-utmb-gara").value;
-  const onlyGpx = document.getElementById("list-filter-gpx-gara").checked;
-  const q = document.getElementById("list-filter-q-gara").value.trim().toLowerCase();
+const MESI_LABEL = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
 
-  let rows = allGaraRows();
-  if(paese !== "tutti") rows = rows.filter(r => r.paese === paese);
-  if(regione !== "tutte") rows = rows.filter(r => r.regione === regione);
-  if(anno !== "tutti") rows = rows.filter(r => String(r.anno) === anno);
-  if(utmb === "si") rows = rows.filter(r => r.utmb);
-  else if(utmb !== "tutte") rows = rows.filter(r => r.utmb && r.utmbDistanza === utmb);
-  if(onlyGpx) rows = rows.filter(r => r.hasTraccia || (r.parent.traccia && r.parent.traccia.length > 1));
-  if(q) rows = rows.filter(r => `${r.nome} ${r.comune || ""} ${r.arrivo || ""}`.toLowerCase().includes(q));
+// chiave di raggruppamento cronologica: YYYY-MM se c'è la data completa,
+// YYYY-00 se si conosce solo l'anno, "9999-99" per le gare senza data né anno
+function garaMonthKey(r){
+  if(r.data && r.data.length >= 7) return r.data.slice(0, 7);
+  if(r.anno) return `${r.anno}-00`;
+  return "9999-99";
+}
+function garaMonthLabel(key){
+  if(key === "9999-99") return "Data da definire";
+  const [y, m] = key.split("-");
+  if(m === "00") return `${y} — mese non precisato`;
+  return `${MESI_LABEL[parseInt(m, 10) - 1]} ${y}`;
+}
 
+function sortGaraRows(rows){
   const dir = listGareSortDir;
   rows.sort((a, b) => {
     if(listGareSortKey === "dislivelloNum"){
@@ -3179,6 +3194,45 @@ function renderListaGare(){
     const vb = (b[listGareSortKey] || "").toString().toLowerCase();
     return va.localeCompare(vb) * dir;
   });
+  return rows;
+}
+
+function garaRowHtml(r){
+  const hasGpx = r.hasTraccia || (r.parent.traccia && r.parent.traccia.length > 1 && !r.label);
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${escapeHtml(r.nome)}</td>
+    <td>${escapeHtml(r.data ? formatDataItaliana(r.data) : (r.anno ? String(r.anno) : "—"))}</td>
+    <td>${escapeHtml(r.comune || "—")}</td>
+    <td>${escapeHtml(r.arrivo || "—")}</td>
+    <td>${escapeHtml(r.regione || "—")}</td>
+    <td>${escapeHtml(r.paese || "—")}</td>
+    <td>${escapeHtml(r.durata || "—")}</td>
+    <td>${escapeHtml(r.dislivello || "—")}</td>
+    <td>${r.utmb ? "🏔 " + escapeHtml(r.utmbDistanza || "") : "—"}</td>
+    <td>${hasGpx ? "✓" : "—"}</td>
+  `;
+  tr.addEventListener("click", () => { closeListaGare(); openDetailModal(r.parent); });
+  return tr;
+}
+
+function renderListaGare(){
+  const paese = document.getElementById("list-filter-paese-gara").value;
+  const regione = document.getElementById("list-filter-regione-gara").value;
+  const anno = document.getElementById("list-filter-anno-gara").value;
+  const utmb = document.getElementById("list-filter-utmb-gara").value;
+  const onlyGpx = document.getElementById("list-filter-gpx-gara").checked;
+  const perMese = document.getElementById("list-filter-mese-gara").checked;
+  const q = document.getElementById("list-filter-q-gara").value.trim().toLowerCase();
+
+  let rows = allGaraRows();
+  if(paese !== "tutti") rows = rows.filter(r => r.paese === paese);
+  if(regione !== "tutte") rows = rows.filter(r => r.regione === regione);
+  if(anno !== "tutti") rows = rows.filter(r => String(r.anno) === anno);
+  if(utmb === "si") rows = rows.filter(r => r.utmb);
+  else if(utmb !== "tutte") rows = rows.filter(r => r.utmb && r.utmbDistanza === utmb);
+  if(onlyGpx) rows = rows.filter(r => r.hasTraccia || (r.parent.traccia && r.parent.traccia.length > 1));
+  if(q) rows = rows.filter(r => `${r.nome} ${r.comune || ""} ${r.arrivo || ""}`.toLowerCase().includes(q));
 
   document.getElementById("list-result-count-gara").textContent = `${rows.length} scheda${rows.length === 1 ? "" : "e"}`;
 
@@ -3188,23 +3242,27 @@ function renderListaGare(){
     tbody.innerHTML = `<tr><td colspan="10" class="empty-state">Nessuna gara trovata con questi filtri.</td></tr>`;
     return;
   }
+
+  if(!perMese){
+    sortGaraRows(rows).forEach(r => tbody.appendChild(garaRowHtml(r)));
+    return;
+  }
+
+  // raggruppamento per mese: ordine cronologico dei gruppi, ordinamento scelto dall'utente dentro ogni gruppo
+  const groups = new Map();
   rows.forEach(r => {
-    const tr = document.createElement("tr");
-    const hasGpx = r.hasTraccia || (r.parent.traccia && r.parent.traccia.length > 1 && !r.label);
-    tr.innerHTML = `
-      <td>${escapeHtml(r.nome)}</td>
-      <td>${escapeHtml(r.data ? formatDataItaliana(r.data) : (r.anno ? String(r.anno) : "—"))}</td>
-      <td>${escapeHtml(r.comune || "—")}</td>
-      <td>${escapeHtml(r.arrivo || "—")}</td>
-      <td>${escapeHtml(r.regione || "—")}</td>
-      <td>${escapeHtml(r.paese || "—")}</td>
-      <td>${escapeHtml(r.durata || "—")}</td>
-      <td>${escapeHtml(r.dislivello || "—")}</td>
-      <td>${r.utmb ? "🏔 " + escapeHtml(r.utmbDistanza || "") : "—"}</td>
-      <td>${hasGpx ? "✓" : "—"}</td>
-    `;
-    tr.addEventListener("click", () => { closeListaGare(); openDetailModal(r.parent); });
-    tbody.appendChild(tr);
+    const key = garaMonthKey(r);
+    if(!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(r);
+  });
+  const keysOrdered = Array.from(groups.keys()).sort();
+  keysOrdered.forEach(key => {
+    const groupRows = sortGaraRows(groups.get(key));
+    const headerTr = document.createElement("tr");
+    headerTr.className = "list-group-row";
+    headerTr.innerHTML = `<td colspan="10">📅 ${escapeHtml(garaMonthLabel(key))}<span class="count-label">${groupRows.length} gara${groupRows.length === 1 ? "" : "e"}</span></td>`;
+    tbody.appendChild(headerTr);
+    groupRows.forEach(r => tbody.appendChild(garaRowHtml(r)));
   });
 }
 
@@ -3226,7 +3284,7 @@ document.querySelectorAll("#list-table-gara thead th[data-sort]").forEach(th => 
 });
 updateListGareSortIndicators();
 
-["list-filter-regione-gara", "list-filter-anno-gara", "list-filter-utmb-gara", "list-filter-gpx-gara"].forEach(id => {
+["list-filter-regione-gara", "list-filter-anno-gara", "list-filter-utmb-gara", "list-filter-gpx-gara", "list-filter-mese-gara"].forEach(id => {
   document.getElementById(id).addEventListener("change", renderListaGare);
 });
 document.getElementById("list-filter-paese-gara").addEventListener("change", () => {
