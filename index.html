@@ -1219,7 +1219,7 @@ button.submit:hover { background: #2b2f38; }
           <option value="100K">Qualificanti 100K</option>
         </select>
         <label class="list-checkbox"><input type="checkbox" id="list-filter-gpx-gara"> Solo con traccia GPX</label>
-        <label class="list-checkbox"><input type="checkbox" id="list-filter-mese-gara"> 📅 Raggruppa per mese</label>
+        <label class="list-checkbox"><input type="checkbox" id="list-filter-mese-gara"> 📅 Raggruppa per mese (tutti gli anni)</label>
         <input type="search" id="list-filter-q-gara" placeholder="Cerca per nome, partenza o arrivo…">
         <span class="count-label" id="list-result-count-gara"></span>
       </div>
@@ -3168,27 +3168,33 @@ function closeListaGare(){ document.getElementById("list-modal-gare").hidden = t
 
 const MESI_LABEL = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
 
-// chiave di raggruppamento cronologica: YYYY-MM se c'è la data completa,
-// YYYY-00 se si conosce solo l'anno, "9999-99" per le gare senza data né anno
+// raggruppamento per mese del calendario (01-12), indipendente dall'anno;
+// "00" per le gare di cui non si conosce il mese (manca la data completa)
 function garaMonthKey(r){
-  if(r.data && r.data.length >= 7) return r.data.slice(0, 7);
-  if(r.anno) return `${r.anno}-00`;
-  return "9999-99";
+  if(r.data && r.data.length >= 7) return r.data.slice(5, 7);
+  return "00";
 }
 function garaMonthLabel(key){
-  if(key === "9999-99") return "Data da definire";
-  const [y, m] = key.split("-");
-  if(m === "00") return `${y} — mese non precisato`;
-  return `${MESI_LABEL[parseInt(m, 10) - 1]} ${y}`;
+  if(key === "00") return "Mese non specificato";
+  return MESI_LABEL[parseInt(key, 10) - 1];
 }
 
-function sortGaraRows(rows){
+function sortGaraRows(rows, dayOnly){
   const dir = listGareSortDir;
   rows.sort((a, b) => {
     if(listGareSortKey === "dislivelloNum"){
       const va = a.dislivelloNum === null ? -Infinity : a.dislivelloNum;
       const vb = b.dislivelloNum === null ? -Infinity : b.dislivelloNum;
       return (va - vb) * dir;
+    }
+    // dentro un gruppo mensile, ordinare per data vuol dire ordinare per giorno del mese (anni mescolati)
+    if(dayOnly && listGareSortKey === "data"){
+      const da = a.data && a.data.length >= 10 ? parseInt(a.data.slice(8, 10), 10) : null;
+      const db = b.data && b.data.length >= 10 ? parseInt(b.data.slice(8, 10), 10) : null;
+      if(da === null && db === null) return 0;
+      if(da === null) return 1;
+      if(db === null) return -1;
+      return (da - db) * dir;
     }
     const va = (a[listGareSortKey] || "").toString().toLowerCase();
     const vb = (b[listGareSortKey] || "").toString().toLowerCase();
@@ -3244,20 +3250,21 @@ function renderListaGare(){
   }
 
   if(!perMese){
-    sortGaraRows(rows).forEach(r => tbody.appendChild(garaRowHtml(r)));
+    sortGaraRows(rows, false).forEach(r => tbody.appendChild(garaRowHtml(r)));
     return;
   }
 
-  // raggruppamento per mese: ordine cronologico dei gruppi, ordinamento scelto dall'utente dentro ogni gruppo
+  // raggruppamento per mese del calendario: Gennaio → Dicembre, tutti gli anni insieme,
+  // "Mese non specificato" in coda per le gare senza data completa
   const groups = new Map();
   rows.forEach(r => {
     const key = garaMonthKey(r);
     if(!groups.has(key)) groups.set(key, []);
     groups.get(key).push(r);
   });
-  const keysOrdered = Array.from(groups.keys()).sort();
+  const keysOrdered = ["01","02","03","04","05","06","07","08","09","10","11","12","00"].filter(k => groups.has(k));
   keysOrdered.forEach(key => {
-    const groupRows = sortGaraRows(groups.get(key));
+    const groupRows = sortGaraRows(groups.get(key), true);
     const headerTr = document.createElement("tr");
     headerTr.className = "list-group-row";
     headerTr.innerHTML = `<td colspan="10">📅 ${escapeHtml(garaMonthLabel(key))}<span class="count-label">${groupRows.length} gara${groupRows.length === 1 ? "" : "e"}</span></td>`;
