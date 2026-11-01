@@ -29652,5 +29652,19 @@
       "https://raw.githubusercontent.com/mauroforlani/Attivita/main/images/gran-sommetta-mve2x9ha-1-mve2x9ic.jpg",
       "https://raw.githubusercontent.com/mauroforlani/Attivita/main/images/gran-sommetta-mve2x9ha-2-mve2xb8g.jpg"
     ]
+  },
+  {
+    "id": "zermatt-gournegrat-mvyfoiy3",
+    "tipo": "poi",
+    "nome": "Zermatt | Gournegrat",
+    "paese": "Svizzera",
+    "regione": "Vallese",
+    "comune": "Zermatt",
+    "lat": 46.0212076,
+    "lng": 7.749254,
+    "link": "https://www.myswitzerland.com/it-it/scoprire-la-svizzera/gornergat/",
+    "foto": [
+      "https://raw.githubusercontent.com/mauroforlani/Attivita/main/images/zermatt-gournegrat-mvyfoiy3-1-mvyfoiyf.jpg"
+    ]
   }
 ]
