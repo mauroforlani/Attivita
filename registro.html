@@ -189,7 +189,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.86rem}
       <div class="card"><h2>Curiosità</h2><ul class="facts" id="facts"></ul></div>
       <div class="card"><h2>Distribuzione per distanza</h2><div id="ch-hist"></div></div>
       <div class="card"><h2>Distanza vs dislivello</h2><div class="legend"><span><i style="background:var(--green)"></i>Escursione</span><span><i style="background:var(--red)"></i>Trail Running</span></div><div id="ch-scatter"></div></div>
-      <div class="card" style="grid-column:1/-1"><h2>Dislivello positivo cumulato</h2><div id="ch-cum"></div></div>
+      <div class="card" style="grid-column:1/-1"><h2>Quando hai fatto le uscite</h2><div class="legend"><span><i style="background:var(--green)"></i>Escursione</span><span><i style="background:var(--red)"></i>Trail Running</span><span><i style="background:var(--blue)"></i>Entrambe nello stesso giorno</span><span>Colore più intenso = più dislivello · clic su un giorno per il dettaglio</span></div><div id="ch-cum"></div></div>
     </div>
   </section>
 
@@ -372,6 +372,32 @@ function xyChart(el,pts,{xl,yl,line}){
   g+=`<text x="${pl+iw/2}" y="${H-1}" text-anchor="middle">${xl}</text><text x="10" y="${pt+ih/2}" transform="rotate(-90 10 ${pt+ih/2})" text-anchor="middle">${yl}</text>`;
   el.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}">${g}</svg>`;
 }
+function calHeat(el){
+  const byDay=new Map();F.forEach(x=>{(byDay.get(x.d)||byDay.set(x.d,[]).get(x.d)).push(x)});
+  const y0=Math.min(...F.map(x=>x.y)),y1=Math.max(...F.map(x=>x.y));
+  const cs=11,gap=2,st=cs+gap,pl=30,top=16,blockH=top+7*st+10,W=pl+53*st+4;
+  let g="";
+  for(let y=y1,b=0;y>=y0;y--,b++){
+    const oy=b*blockH;
+    const off=(new Date(Date.UTC(y,0,1)).getUTCDay()+6)%7;
+    const nd=(Date.UTC(y+1,0,1)-Date.UTC(y,0,1))/864e5;
+    g+=`<text x="0" y="${oy+top+3*st+9}" style="font-weight:700;fill:var(--ink)">${y}</text>`;
+    ["L","M","V"].forEach((l,k)=>g+=`<text x="${pl-5}" y="${oy+top+k*2*st+cs}" text-anchor="end" style="font-size:9px">${l}</text>`);
+    for(let m=0;m<12;m++){const i=(Date.UTC(y,m,1)-Date.UTC(y,0,1))/864e5;g+=`<text x="${pl+Math.floor((i+off)/7)*st}" y="${oy+10}" style="font-size:9px">${MESI[m]}</text>`}
+    for(let i=0;i<nd;i++){
+      const iso=new Date(Date.UTC(y,0,1+i)).toISOString().slice(0,10);
+      const col=Math.floor((i+off)/7),row=(i+off)%7,x=pl+col*st,yy=oy+top+row*st;
+      const a=byDay.get(iso);
+      if(!a){g+=`<rect x="${x}" y="${yy}" width="${cs}" height="${cs}" rx="2" fill="var(--border)" fill-opacity=".55"/>`;continue}
+      const tipi=new Set(a.map(z=>z.tipo)),dp=sum(a,z=>z.dp);
+      const colr=tipi.size>1?"var(--blue)":COL[a[0].tipo];
+      const op=(.4+.6*Math.min(1,dp/1500)).toFixed(2);
+      g+=`<rect x="${x}" y="${yy}" width="${cs}" height="${cs}" rx="2" fill="${colr}" fill-opacity="${op}" data-id="${a[0].id}" style="cursor:pointer"><title>${fD(iso)} — ${esc(a.map(z=>z.t).join(" + "))} (${fN(sum(a,z=>z.km),1)} km, ${fN(dp)} m D+)</title></rect>`;
+    }
+  }
+  const H=(y1-y0+1)*blockH;
+  el.innerHTML=`<div style="overflow-x:auto"><svg class="chart" style="min-width:640px" viewBox="0 0 ${W} ${H}">${g}</svg></div>`;
+}
 function hbars(el,items,fmt,attr){
   const max=Math.max(...items.map(i=>i.v),1);
   el.innerHTML=items.length?items.map(i=>`<div class="hb" ${attr?attr(i):""}><span class="lab" title="${esc(i.l)}">${esc(i.l)}</span><span class="bar"><b style="width:${i.v/max*100}%"></b></span><span class="val">${fmt(i.v)}</span></div>`).join(""):'<div class="empty">Nessun dato</div>';
@@ -392,8 +418,7 @@ function renderOverview(){
   const hv=labs.map((_,i)=>F.filter(x=>x.km!=null&&(i===6?x.km>=30:x.km>=edges[i]&&x.km<edges[i+1])));
   vbars($("ch-hist"),labs.map(l=>l+" km"),[{n:"Attività",c:"var(--blue)",v:hv.map(a=>a.length)}],v=>v+" attività");
   xyChart($("ch-scatter"),F.filter(x=>x.km!=null&&x.dp!=null).map(x=>({x:x.km,y:x.dp,c:COL[x.tipo],id:x.id,t:`${x.t} — ${fN(x.km,1)} km, ${fN(x.dp)} m D+`})),{xl:"Distanza (km)",yl:"Dislivello + (m)"});
-  let c=0;const sorted=[...F].sort((a,b)=>a.ts-b.ts);
-  xyChart($("ch-cum"),sorted.map(x=>({x:x.ts,y:(c+=x.dp||0)})),{xl:"",yl:"D+ cumulato (m)",line:true});
+  calHeat($("ch-cum"));
   renderFacts();
 }
 
