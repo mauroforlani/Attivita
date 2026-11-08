@@ -130,6 +130,19 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.86rem}
 .dgrid span{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft)}
 .dgrid b{font-weight:600}
 .note{font-size:.82rem;color:var(--orange);margin-top:.9rem}
+@media(max-width:560px){
+  svg.chart:not(.cal) text{font-size:19px}
+  .card{padding:.85rem .8rem}
+  h2{font-size:1rem}
+  .kpi .v{font-size:1.3rem}
+  .legend{flex-wrap:wrap;gap:.3rem .9rem}
+  .hb{grid-template-columns:minmax(80px,120px) 1fr auto;gap:.4rem}
+  details.prov>summary{font-size:.82rem;gap:.4rem}
+  details.prov .num{font-size:.72rem}
+  .tbl th,.tbl td{padding:.5rem .55rem;font-size:.8rem}
+  .modal-box{padding:1.1rem}
+  .seg button{padding:.35rem .65rem}
+}
 </style>
 </head>
 <body>
@@ -187,7 +200,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.86rem}
       <div class="card"><h2>Stagionalità (per mese)</h2><div class="legend"><span><i style="background:var(--green)"></i>Escursione</span><span><i style="background:var(--red)"></i>Trail Running</span></div><div id="ch-mese"></div></div>
       <div class="card"><h2>Top 10 province / zone <small style="font-weight:400;color:var(--ink-soft)">· clic per filtrare</small></h2><div id="ch-top"></div></div>
       <div class="card"><h2>Curiosità</h2><ul class="facts" id="facts"></ul></div>
-      <div class="card"><h2>Distribuzione per distanza</h2><div id="ch-hist"></div></div>
+      <div class="card"><h2>Distribuzione per distanza (km)</h2><div id="ch-hist"></div></div>
       <div class="card"><h2>Distanza vs dislivello</h2><div class="legend"><span><i style="background:var(--green)"></i>Escursione</span><span><i style="background:var(--red)"></i>Trail Running</span></div><div id="ch-scatter"></div></div>
       <div class="card" style="grid-column:1/-1"><h2>Quando hai fatto le uscite</h2><div class="legend"><span><i style="background:var(--green)"></i>Escursione</span><span><i style="background:var(--red)"></i>Trail Running</span><span><i style="background:var(--blue)"></i>Entrambe nello stesso giorno</span><span>Colore più intenso = più dislivello · clic su un giorno per il dettaglio</span></div><div id="ch-cum"></div></div>
     </div>
@@ -259,6 +272,7 @@ function init(rows){
   $("f-anni").innerHTML=ys.map(y=>`<button class="chip" data-y="${y}">${y}</button>`).join("");
   $("f-mese").innerHTML='<option value="">Tutti i mesi</option>'+MESI_L.map((m,i)=>`<option value="${i}">${m}</option>`).join("");
   $("rec-m").innerHTML=RECORDS.map((r,i)=>`<option value="${i}">${r.label}</option>`).join("");
+  if(innerWidth<700)$("filters").open=false;
   refreshOptions();update();
 }
 
@@ -289,6 +303,7 @@ function refreshOptions(){
   const d2=d1.filter(x=>!S.f.reg||x.reg===S.f.reg);
   S.f.loc=fillSel("f-loc",countBy(d2,"loc"),"Tutte le province / zone",S.f.loc);
 }
+let _rz;window.addEventListener("resize",()=>{clearTimeout(_rz);_rz=setTimeout(()=>{if(DATA.length&&F.length&&S.tab==="panoramica")calHeat($("ch-cum"))},150)});
 function bind(){
   $("f-anni").addEventListener("click",e=>{const b=e.target.closest("[data-y]");if(!b)return;const y=+b.dataset.y;S.anni.has(y)?S.anni.delete(y):S.anni.add(y);b.classList.toggle("on");update()});
   ["tipo","stato","reg","loc","mese"].forEach(k=>$("f-"+k).addEventListener("change",e=>{S.f[k]=e.target.value;if(["stato","reg"].includes(k))refreshOptions();update()}));
@@ -337,7 +352,7 @@ function renderKpis(){
 /* ---------- grafici ---------- */
 function niceMax(m){const p=Math.pow(10,Math.floor(Math.log10(m)));for(const c of[1,2,2.5,5,10])if(c*p>=m)return c*p;return 10*p}
 function vbars(el,cats,series,fmt){
-  const W=640,H=250,pl=42,pr=6,pt=16,pb=24,iw=W-pl-pr,ih=H-pt-pb;
+  const W=640,H=250,pl=50,pr=6,pt=24,pb=26,iw=W-pl-pr,ih=H-pt-pb;
   const tot=cats.map((_,i)=>series.reduce((a,s)=>a+s.v[i],0));
   const max=niceMax(Math.max(...tot,1)),slot=iw/cats.length,bw=Math.min(slot*.7,46);
   let g="";
@@ -355,7 +370,7 @@ function stackByTipo(cats,keyFn){
   return TIPI.map(t=>({n:t,c:COL[t],v:cats.map(c=>sum(F.filter(x=>x.tipo===t&&keyFn(x)===c),M.get))}));
 }
 function xyChart(el,pts,{xl,yl,line}){
-  const W=640,H=260,pl=48,pr=10,pt=10,pb=34,iw=W-pl-pr,ih=H-pt-pb;
+  const W=640,H=260,pl=54,pr=12,pt=10,pb=40,iw=W-pl-pr,ih=H-pt-pb;
   if(!pts.length){el.innerHTML='<div class="empty">Nessun dato</div>';return}
   const mxX=Math.max(...pts.map(p=>p.x)),mnX=line?Math.min(...pts.map(p=>p.x)):0,mxY=niceMax(Math.max(...pts.map(p=>p.y),1)),X=niceMax(mxX||1);
   const sx=v=>pl+iw*(line?(v-mnX)/Math.max(mxX-mnX,1):v/X),sy=v=>pt+ih-ih*v/mxY;
@@ -375,18 +390,26 @@ function xyChart(el,pts,{xl,yl,line}){
 function calHeat(el){
   const byDay=new Map();F.forEach(x=>{(byDay.get(x.d)||byDay.set(x.d,[]).get(x.d)).push(x)});
   const y0=Math.min(...F.map(x=>x.y)),y1=Math.max(...F.map(x=>x.y));
-  const cs=11,gap=2,st=cs+gap,pl=30,top=16,blockH=top+7*st+10,W=pl+53*st+4;
+  const W=Math.max(300,el.clientWidth||320),B=W>=700?1:2,C=B===1?54:27;
+  const gap=B===1?2:1.5,pl=B===1?30:20;
+  const cs=Math.max(7,Math.min(16,Math.floor((W-pl-4)/C-gap))),st=cs+gap;
+  const yh=B===1?0:16,top=14,band=top+7*st+8,blockH=yh+B*band+(B===1?0:6);
   let g="";
-  for(let y=y1,b=0;y>=y0;y--,b++){
-    const oy=b*blockH;
+  for(let y=y1,k=0;y>=y0;y--,k++){
+    const oy=k*blockH;
     const off=(new Date(Date.UTC(y,0,1)).getUTCDay()+6)%7;
     const nd=(Date.UTC(y+1,0,1)-Date.UTC(y,0,1))/864e5;
-    g+=`<text x="0" y="${oy+top+3*st+9}" style="font-weight:700;fill:var(--ink)">${y}</text>`;
-    ["L","M","V"].forEach((l,k)=>g+=`<text x="${pl-5}" y="${oy+top+k*2*st+cs}" text-anchor="end" style="font-size:9px">${l}</text>`);
-    for(let m=0;m<12;m++){const i=(Date.UTC(y,m,1)-Date.UTC(y,0,1))/864e5;g+=`<text x="${pl+Math.floor((i+off)/7)*st}" y="${oy+10}" style="font-size:9px">${MESI[m]}</text>`}
+    if(B===1)g+=`<text x="0" y="${oy+top+3*st+9}" style="font-weight:700;fill:var(--ink)">${y}</text>`;
+    else g+=`<text x="0" y="${oy+12}" style="font-size:13px;font-weight:700;fill:var(--ink)">${y}</text>`;
+    for(let bd=0;bd<B;bd++){
+      const by=oy+yh+bd*band;
+      ["L","M","V"].forEach((l,j)=>g+=`<text x="${pl-4}" y="${by+top+j*2*st+cs-1}" text-anchor="end" style="font-size:9px">${l}</text>`);
+      for(let m=0;m<12;m++){const i=(Date.UTC(y,m,1)-Date.UTC(y,0,1))/864e5,c=Math.floor((i+off)/7);if(c>=bd*C&&c<(bd+1)*C)g+=`<text x="${pl+(c-bd*C)*st}" y="${by+10}" style="font-size:9px">${MESI[m]}</text>`}
+    }
     for(let i=0;i<nd;i++){
       const iso=new Date(Date.UTC(y,0,1+i)).toISOString().slice(0,10);
-      const col=Math.floor((i+off)/7),row=(i+off)%7,x=pl+col*st,yy=oy+top+row*st;
+      const c=Math.floor((i+off)/7),row=(i+off)%7,bd=B===1?0:(c>=C?1:0);
+      const x=pl+(c-bd*C)*st,yy=oy+yh+bd*band+top+row*st;
       const a=byDay.get(iso);
       if(!a){g+=`<rect x="${x}" y="${yy}" width="${cs}" height="${cs}" rx="2" fill="var(--border)" fill-opacity=".55"/>`;continue}
       const tipi=new Set(a.map(z=>z.tipo)),dp=sum(a,z=>z.dp);
@@ -396,7 +419,7 @@ function calHeat(el){
     }
   }
   const H=(y1-y0+1)*blockH;
-  el.innerHTML=`<div style="overflow-x:auto"><svg class="chart" style="min-width:640px" viewBox="0 0 ${W} ${H}">${g}</svg></div>`;
+  el.innerHTML=`<svg class="chart cal" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="width:100%;height:auto">${g}</svg>`;
 }
 function hbars(el,items,fmt,attr){
   const max=Math.max(...items.map(i=>i.v),1);
@@ -416,7 +439,7 @@ function renderOverview(){
   // istogramma distanze
   const edges=[0,5,10,15,20,25,30],labs=["<5","5–10","10–15","15–20","20–25","25–30","30+"];
   const hv=labs.map((_,i)=>F.filter(x=>x.km!=null&&(i===6?x.km>=30:x.km>=edges[i]&&x.km<edges[i+1])));
-  vbars($("ch-hist"),labs.map(l=>l+" km"),[{n:"Attività",c:"var(--blue)",v:hv.map(a=>a.length)}],v=>v+" attività");
+  vbars($("ch-hist"),labs,[{n:"Attività",c:"var(--blue)",v:hv.map(a=>a.length)}],v=>v+" attività");
   xyChart($("ch-scatter"),F.filter(x=>x.km!=null&&x.dp!=null).map(x=>({x:x.km,y:x.dp,c:COL[x.tipo],id:x.id,t:`${x.t} — ${fN(x.km,1)} km, ${fN(x.dp)} m D+`})),{xl:"Distanza (km)",yl:"Dislivello + (m)"});
   calHeat($("ch-cum"));
   renderFacts();
