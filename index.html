@@ -898,7 +898,23 @@ button.submit:hover { background: #2b2f38; }
 @media (max-width: 600px) {
   .row { flex-direction: column; }
   #map, .map-wrap > div { height: 320px; }
-  .nav-links { gap: 1rem; font-size: 0.85rem; }
+}
+/* menu su smartphone: logo + "Aggiungi" sulla prima riga, voci scorrevoli sulla seconda */
+@media (max-width: 700px) {
+  .nav-inner { flex-wrap: wrap; padding: 0.6rem 1rem 0; gap: 0.5rem 0.8rem; }
+  .logo { order: 1; font-size: 1.05rem; flex: 1; }
+  .btn-add { order: 2; padding: 0.4rem 0.9rem; font-size: 0.82rem; white-space: nowrap; }
+  .nav-links {
+    order: 3; flex: 0 0 100%; gap: 0.3rem; font-size: 0.9rem;
+    overflow-x: auto; white-space: nowrap; scrollbar-width: none;
+    margin: 0 -1rem; padding: 0 1rem;
+    -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+            mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links a { flex: none; padding: 0.55rem 0.7rem 0.6rem; }
+  .nav-links a:last-child { margin-right: 1.6rem; }
 }
 .view[hidden]{display:none;}
 </style>
@@ -2006,6 +2022,7 @@ function navigate(viewName){
   if(colorMap[viewName]){
     const link = document.querySelector(`.nav-links a[data-view="${viewName}"]`);
     if(link) link.classList.add("active", colorMap[viewName]);
+    if(link && link.scrollIntoView) link.scrollIntoView({inline:"center", block:"nearest", behavior:"smooth"});
   }
   if(viewName==="home" && !homeMapInit){ initHomeMap(); homeMapInit = true; }
   if(["escursioni","motogiri","poi","gare"].includes(viewName)){
