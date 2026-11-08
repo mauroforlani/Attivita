@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Converte Attivita_unificate.xlsx in data/attivita.json (usato da registro.html).
+"""Converte Attivita_unificate.xlsx in data/attivita.js e data/attivita.json (usati da registro.html).
 
 Uso:  python3 scripts/build_attivita.py [percorso/Attivita_unificate.xlsx]
 Per aggiornare il registro: aggiungi righe all'Excel, rilancia lo script, fai commit di data/attivita.json.
@@ -81,4 +81,5 @@ rows.sort(key=lambda x: (x["d"], x["h"]))
 for n, x in enumerate(rows, 1): x["id"] = n
 OUT.parent.mkdir(exist_ok=True)
 OUT.write_text(json.dumps(rows, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+OUT.with_suffix(".js").write_text("window.ATTIVITA="+json.dumps(rows, ensure_ascii=False, separators=(",", ":"))+";", encoding="utf-8")
 print(f"{len(rows)} attività -> {OUT} ({OUT.stat().st_size/1024:.0f} KB)")
